@@ -146,10 +146,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <div style="width:6px;height:6px;border-radius:50%;background:#A5F3FC"></div>
     <span id="providerLabel">Loading AI...</span>
   </div>
-  <div class="topbar-divider"></div>
-  <div id="tunnelBadge" style="padding:5px 12px;border-radius:999px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2)" title="Public URL status">
-    <span style="color:rgba(255,255,255,0.5);font-size:11px">Checking tunnel...</span>
-  </div>
+
   <div class="step-trail" id="stepTrail"></div>
 </header>
 <div class="main-content">
@@ -158,7 +155,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div>
 </div>
 <script>
-const API = 'https://hireiq-hupy.onrender.com';
+const API='http://localhost:3001';
 let state={step:'intake',sessionId:null,analysis:null,questions:null,answers:{},scores:{},currentQ:null,transcript:{},interviewStarted:false};
 const STEPS=[{id:'intake',label:'Setup'},{id:'analyze',label:'Analysis'},{id:'questions',label:'Questions'},{id:'interview',label:'Interview'},{id:'report',label:'Report'}];
 const SECTION_META={technical:{icon:'⚙️',label:'Technical',color:'var(--blue)'},scenario:{icon:'🎯',label:'Scenario Based',color:'var(--purple)'},architecture:{icon:'🏗️',label:'Architecture & Thought',color:'var(--teal)'},behavioural:{icon:'🧠',label:'Behavioural',color:'var(--amber)'},coding:{icon:'💻',label:'Coding Exercise',color:'var(--green)'}};
@@ -973,15 +970,9 @@ let interimText = {};
 
 async function launchVideoRoom() {
   if (!state.sessionId) return;
-  showStatus('loading', 'Checking public URL...');
+  showStatus('loading', 'Creating video room...');
+  state.isPublic = true; // Always public on Render
   try {
-    // Fetch the current public URL (localhost or Cloudflare tunnel)
-    const urlRes = await fetch(`${API}/api/public-url`);
-    const urlData = await urlRes.json();
-    state.publicUrl = urlData.url;
-    state.isPublic  = urlData.isPublic;
-
-    showStatus('loading', 'Creating video room...');
     const res = await fetch(`${API}/api/room/create`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionId: state.sessionId })
@@ -1035,14 +1026,9 @@ function renderVideoRoom() {
           <!-- Candidate link -->
           <div class="card" style="margin-bottom:0">
             <div class="card-title" style="font-size:13px">🔗 Candidate Link</div>
-            ${!state.isPublic ? `
-            <div style="padding:10px 14px;background:var(--amber-bg);border:1.5px solid rgba(217,119,6,0.2);border-radius:var(--radius);margin-bottom:10px;font-size:12px;color:var(--amber);line-height:1.6">
-              ⚠ <strong>Localhost detected</strong> — this link only works on your machine.<br>
-              Run <code style="background:rgba(0,0,0,0.1);padding:1px 5px;border-radius:3px">cloudflared tunnel --url http://localhost:3001</code> in a new terminal to get a public link.
-            </div>` : `
             <div style="padding:8px 12px;background:var(--green-bg);border:1.5px solid rgba(5,150,105,0.2);border-radius:var(--radius);margin-bottom:10px;font-size:12px;color:var(--green)">
               ✓ <strong>Public URL active</strong> — candidate can join from any device
-            </div>`}
+            </div>
             <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5">Share this link with the candidate:</div>
             <div style="background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--text2);word-break:break-all;margin-bottom:10px">${room.candidate_link}</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1223,23 +1209,7 @@ function shareViaEmail(link) {
   window.open(`mailto:?subject=${subject}&body=${body}`);
 }
 
-// ─── Cloudflare tunnel status in topbar ───────────────────────────────────────
-async function checkTunnelStatus() {
-  try {
-    const res = await fetch(`${API}/api/public-url`);
-    const data = await res.json();
-    const badge = document.getElementById('tunnelBadge');
-    if (badge) {
-      if (data.isPublic) {
-        badge.innerHTML = `<span style="color:var(--green);font-size:11px;font-weight:600">🌐 ${data.url.replace('https://','')}</span>`;
-        badge.title = 'Cloudflare tunnel active — candidates can join from any device';
-      } else {
-        badge.innerHTML = `<span style="color:var(--amber);font-size:11px;font-weight:600">⚠ localhost only</span>`;
-        badge.title = 'Run: cloudflared tunnel --url http://localhost:3001';
-      }
-    }
-  } catch(e) {}
-}
+
 
 // Load AI provider status on boot
 (async () => {
@@ -1262,8 +1232,7 @@ async function checkTunnelStatus() {
   } catch(e) { document.getElementById('providerLabel').textContent = 'AI offline'; }
 })();
 
-checkTunnelStatus();
-setInterval(checkTunnelStatus, 10000);
+
 
 // ─── In-Person Speech Recognition Engine ─────────────────────────────────────
 let recognitionInstance = null;
