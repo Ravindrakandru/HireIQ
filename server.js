@@ -770,6 +770,9 @@ function findQuestion(questionsData, qId) {
   }
   return null;
 }
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // ─── Start server + Cloudflare tunnel ────────────────────────────────────────
 app.listen(PORT, async () => {
