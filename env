@@ -1,0 +1,14 @@
+# ─── HireIQ Environment Variables ─────────────────────────────────────────────
+# This file stays on your laptop only — never commit it to GitHub
+# .gitignore already blocks it from being pushed
+
+# AI Provider — Groq (free)
+GROQ_API_KEY=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
+GROQ_MODEL=llama-3.3-70b-versatile
+
+# Transcription — AssemblyAI (free tier)
+ASSEMBLYAI_API_KEY=861595ebde030274776e4382977f4d090eb9f6d140ccb909c6f6ad5a085aa2b9
+
+# Server
+PORT=3001
+FRONTEND_URL=https://hireiq-hupy.onrender.com

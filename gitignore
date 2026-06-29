@@ -1,0 +1,6 @@
+node_modules/
+uploads/
+*.zip
+.env
+local-config.js
+.DS_Store

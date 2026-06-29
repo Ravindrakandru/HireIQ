@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HireIQ — Interview Room (Candidate)</title>
+<script src="https://meet.jit.si/external_api.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#0F1117;color:#E8EDF5;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:linear-gradient(135deg,#3730A3,#4F46E5,#6366F1);padding:0 28px;height:58px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.logo{font-weight:800;font-size:17px;color:#fff;display:flex;align-items:center;gap:8px}
+.logo-badge{background:rgba(255,255,255,0.2);color:#E0E7FF;font-size:9px;font-weight:700;padding:3px 7px;border-radius:5px;letter-spacing:1px}
+.status-pill{margin-left:auto;display:flex;align-items:center;gap:7px;padding:5px 14px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25)}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#EF4444;animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.main{flex:1;display:grid;grid-template-columns:1fr 360px;gap:0;overflow:hidden;height:calc(100vh - 58px)}
+
+/* Video side */
+.video-side{background:#080C14;display:flex;flex-direction:column;position:relative}
+#daily-frame{width:100%;flex:1;border:none}
+.video-controls{display:flex;align-items:center;justify-content:center;gap:12px;padding:16px;background:#0D1320;border-top:1px solid rgba(255,255,255,0.06)}
+.ctrl-btn{width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.15s}
+.ctrl-btn-normal{background:rgba(255,255,255,0.1);color:#fff}
+.ctrl-btn-normal:hover{background:rgba(255,255,255,0.18)}
+.ctrl-btn-danger{background:#EF4444;color:#fff}
+.ctrl-btn-danger:hover{background:#DC2626}
+.ctrl-btn-off{background:rgba(239,68,68,0.2);color:#EF4444;border:1.5px solid rgba(239,68,68,0.4)}
+
+/* Question side */
+.question-side{background:#111827;border-left:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;overflow:hidden}
+.q-panel-header{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0}
+.q-panel-title{font-size:12px;font-weight:700;color:#6366F1;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.q-panel-meta{font-size:12px;color:#8B95A8}
+
+.q-display{flex:1;overflow-y:auto;padding:20px}
+.q-waiting{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#4B5568;text-align:center;gap:12px}
+.q-waiting-icon{font-size:44px}
+.current-q-box{background:#1A2234;border:1.5px solid rgba(99,102,241,0.2);border-radius:14px;padding:22px;margin-bottom:16px}
+.q-type-badge{font-size:11px;font-weight:700;color:#818CF8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.q-text-display{font-size:16px;font-weight:600;line-height:1.6;color:#E8EDF5}
+
+/* Timer */
+.timer-box{background:#1A2234;border:1.5px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:between;gap:12px;margin-bottom:16px}
+.timer-display{font-size:28px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-1px}
+.timer-display.urgent{color:#EF4444}
+.timer-display.warning{color:#F59E0B}
+.timer-display.ok{color:#10B981}
+.timer-label{font-size:11px;color:#8B95A8;font-weight:600;text-transform:uppercase;letter-spacing:0.06em}
+
+/* Mic indicator */
+.mic-indicator{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;background:#1A2234;border:1.5px solid rgba(255,255,255,0.06);font-size:12px;font-weight:600;color:#8B95A8;margin-bottom:16px}
+.mic-bars{display:flex;align-items:center;gap:2px;height:18px}
+.mic-bar{width:3px;background:#4B5568;border-radius:2px;transition:height 0.1s,background 0.1s}
+.mic-bar.active{background:#10B981}
+.mic-active-label{color:#10B981}
+
+/* Transcript */
+.transcript-panel{background:#161D2E;border:1.5px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;flex:1;min-height:120px;max-height:200px;overflow-y:auto;font-size:13px;line-height:1.7;color:#8B95A8}
+.transcript-panel.has-text{color:#C8D3E8}
+.transcript-interim{color:#6B7A99;font-style:italic}
+
+.q-panel-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0}
+.q-progress{display:flex;gap:6px}
+.q-dot{width:10px;height:10px;border-radius:50%;background:#1A2234;border:1.5px solid rgba(255,255,255,0.1);transition:all 0.3s}
+.q-dot.done{background:#10B981;border-color:#10B981}
+.q-dot.current{background:#6366F1;border-color:#6366F1;box-shadow:0 0 8px rgba(99,102,241,0.6)}
+
+/* Waiting room */
+.waiting-room{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;text-align:center;padding:40px}
+.waiting-hero{font-size:48px;margin-bottom:8px}
+.waiting-title{font-size:20px;font-weight:700;color:#E8EDF5}
+.waiting-sub{font-size:14px;color:#8B95A8;max-width:320px;line-height:1.6}
+.join-btn{background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border:none;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(79,70,229,0.4);transition:all 0.2s}
+.join-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(79,70,229,0.5)}
+.perms-note{font-size:12px;color:#4B5568;display:flex;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    HireIQ <span class="logo-badge">CANDIDATE</span>
+  </div>
+  <div class="status-pill" id="statusPill">
+    <span>Waiting to join</span>
+  </div>
+</header>
+
+<div id="waitingRoom" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:calc(100vh - 58px);background:#0F1117;text-align:center;gap:20px;padding:40px">
+  <div style="font-size:52px">🎯</div>
+  <div style="font-size:22px;font-weight:800;color:#E8EDF5">Ready to join your interview?</div>
+  <div style="font-size:14px;color:#8B95A8;max-width:360px;line-height:1.7">Your interviewer will be on the other side. Make sure your camera and microphone are working before joining.</div>
+  <div style="display:flex;align-items:center;gap:8px;padding:12px 20px;background:#1A2234;border-radius:10px;border:1.5px solid rgba(255,255,255,0.08);font-size:13px;color:#8B95A8">
+    🎤 Camera &amp; microphone access will be requested
+  </div>
+  <button class="join-btn" onclick="joinRoom()">
+    Join Interview Room
+  </button>
+  <div style="font-size:12px;color:#4B5568">Your responses will be transcribed to help the interviewer</div>
+</div>
+
+<div class="main" id="mainRoom" style="display:none">
+  <!-- Video -->
+  <div class="video-side">
+    <div id="daily-frame" style="flex:1;background:#080C14"></div>
+    <div class="video-controls">
+      <button class="ctrl-btn ctrl-btn-normal" id="btnMic" onclick="toggleMic()" title="Toggle mic">🎤</button>
+      <button class="ctrl-btn ctrl-btn-normal" id="btnCam" onclick="toggleCam()" title="Toggle camera">📷</button>
+      <button class="ctrl-btn ctrl-btn-danger" onclick="leaveRoom()" title="Leave">📞</button>
+    </div>
+  </div>
+
+  <!-- Question panel -->
+  <div class="question-side">
+    <div class="q-panel-header">
+      <div class="q-panel-title">Current Question</div>
+      <div class="q-panel-meta" id="qMeta">Waiting for interviewer...</div>
+    </div>
+
+    <div class="q-display" id="qDisplay">
+      <div class="q-waiting">
+        <div class="q-waiting-icon">⏳</div>
+        <div style="font-size:14px;font-weight:600;color:#6B7A99">Waiting for first question</div>
+        <div style="font-size:12px;color:#4B5568">The interviewer will push questions to your screen</div>
+      </div>
+    </div>
+
+    <div style="padding:0 20px 16px">
+      <!-- Mic indicator -->
+      <div class="mic-indicator" id="micIndicator">
+        <div class="mic-bars" id="micBars">
+          <div class="mic-bar" id="bar1" style="height:6px"></div>
+          <div class="mic-bar" id="bar2" style="height:10px"></div>
+          <div class="mic-bar" id="bar3" style="height:14px"></div>
+          <div class="mic-bar" id="bar4" style="height:10px"></div>
+          <div class="mic-bar" id="bar5" style="height:6px"></div>
+        </div>
+        <span id="micLabel">Microphone ready</span>
+      </div>
+
+      <!-- Live transcript -->
+      <div style="font-size:11px;font-weight:700;color:#4B5568;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Live Transcript</div>
+      <div class="transcript-panel" id="transcriptPanel">Your words will appear here as you speak...</div>
+    </div>
+
+    <div class="q-panel-footer">
+      <div style="font-size:11px;font-weight:700;color:#4B5568;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Progress</div>
+      <div class="q-progress" id="qProgress"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const sessionId = params.get('session');
+const roomUrl = params.get('roomUrl') ? decodeURIComponent(params.get('roomUrl')) : null;
+const isDemo = !roomUrl || roomUrl.includes('demo.daily.co');
+
+let callFrame = null;
+let micOn = true, camOn = true;
+let assemblyWs = null;
+let mediaRecorder = null;
+let audioStream = null;
+let currentQId = null;
+let finalTranscript = '';
+let interimTranscript = '';
+
+// ─── Poll for current question from interviewer ───────────────────────────────
+let questionPollInterval = null;
+function startQuestionPolling() {
+  questionPollInterval = setInterval(async () => {
+    try {
+      const res = await fetch(`http://localhost:3001/api/session/${sessionId}`);
+      const data = await res.json();
+      if (data.success && data.session.current_question) {
+        updateQuestion(data.session.current_question, data.session.question_index, data.session.total_questions);
+      }
+    } catch(e) {}
+  }, 2000);
+}
+
+function updateQuestion(q, index, total) {
+  if (q.id === currentQId) return; // no change
+  currentQId = q.id;
+  finalTranscript = '';
+  interimTranscript = '';
+  document.getElementById('transcriptPanel').textContent = 'Your words will appear here as you speak...';
+  document.getElementById('transcriptPanel').className = 'transcript-panel';
+
+  const meta = { technical:'⚙️ Technical', scenario:'🎯 Scenario', architecture:'🏗️ Architecture', behavioural:'🧠 Behavioural', coding:'💻 Coding' };
+  const icon = meta[q._sectionType] || '❓ Question';
+
+  document.getElementById('qMeta').textContent = `Question ${(index||0)+1} of ${total||'?'}`;
+  document.getElementById('qDisplay').innerHTML = `
+    <div class="current-q-box">
+      <div class="q-type-badge"><span>${icon}</span></div>
+      <div class="q-text-display">${q.question}</div>
+      ${q.time_minutes ? `<div style="margin-top:12px;font-size:12px;color:#4B5568;display:flex;align-items:center;gap:5px">⏱ Suggested: ${q.time_minutes} minutes</div>` : ''}
+    </div>
+    <div style="font-size:12px;color:#4B5568;text-align:center;padding:12px">Take your time. Speak clearly into your microphone.</div>
+  `;
+
+  // Update progress dots
+  if (total) {
+    const dots = Array.from({length: total}, (_, i) => {
+      const cls = i < (index||0) ? 'done' : i === (index||0) ? 'current' : '';
+      return `<div class="q-dot ${cls}"></div>`;
+    }).join('');
+    document.getElementById('qProgress').innerHTML = dots;
+  }
+}
+
+// ─── Join Daily room ──────────────────────────────────────────────────────────
+async function joinRoom() {
+  document.getElementById('waitingRoom').style.display = 'none';
+  document.getElementById('mainRoom').style.display = 'grid';
+  document.getElementById('statusPill').innerHTML = '<div class="live-dot"></div> <span>Connecting...</span>';
+
+  // Use Jitsi Meet (free, no API key needed)
+  const roomContainer = document.getElementById('daily-frame');
+  roomContainer.innerHTML = ''; // clear placeholder
+
+  if (roomUrl && !roomUrl.includes('demo.daily.co')) {
+    try {
+      // Extract room name from URL for Jitsi
+      const jitsiRoomName = params.get('room') || roomUrl.split('/').pop();
+      callFrame = new JitsiMeetExternalAPI('meet.jit.si', {
+        roomName: decodeURIComponent(jitsiRoomName),
+        parentNode: roomContainer,
+        width: '100%',
+        height: '100%',
+        configOverwrite: {
+          startWithAudioMuted: false,
+          startWithVideoMuted: false,
+          prejoinPageEnabled: false,
+          disableDeepLinking: true,
+          enableWelcomePage: false,
+          enableClosePage: false,
+          // Disable lobby/moderator waiting
+          lobby: { autoKnock: false, enableChat: false },
+          hiddenPremeetingButtons: ['microphone', 'camera'],
+          // Allow anyone to join without moderator
+          startAsMuted: false,
+          requireDisplayName: false,
+          enableInsecureRoomNameWarning: false,
+          toolbarButtons: ['microphone','camera','hangup','fullscreen','settings'],
+        },
+        interfaceConfigOverwrite: {
+          SHOW_JITSI_WATERMARK: false,
+          SHOW_BRAND_WATERMARK: false,
+          SHOW_CHROME_EXTENSION_BANNER: false,
+          DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+          TOOLBAR_BUTTONS: ['microphone','camera','hangup','fullscreen'],
+        },
+        userInfo: { displayName: 'Candidate' },
+      });
+      callFrame.addEventListener('videoConferenceLeft', () => leaveRoom());
+      document.getElementById('statusPill').innerHTML = '<div class="live-dot"></div> <span>Live</span>';
+    } catch(e) {
+      console.error('Jitsi error:', e);
+      roomContainer.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#8B95A8"><div style="font-size:40px">📹</div><div>Video unavailable — audio only</div></div>`;
+    }
+  } else {
+    roomContainer.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;color:#4B5568"><div style="font-size:48px">📹</div><div style="font-size:14px;font-weight:600">Demo Mode</div><div style="font-size:12px;max-width:280px;text-align:center;line-height:1.6">Questions and transcription are active.</div></div>`;
+    document.getElementById('statusPill').innerHTML = '<div class="live-dot" style="background:#F59E0B"></div> <span>Demo</span>';
+  }
+
+  await startMicAndTranscription();
+  startQuestionPolling();
+}
+
+// ─── Real-time transcription via AssemblyAI ───────────────────────────────────
+async function startMicAndTranscription() {
+  try {
+    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    animateMicBars();
+
+    // Get AssemblyAI token
+    const tokenRes = await fetch('http://localhost:3001/api/transcription/token', { method:'POST' });
+    const tokenData = await tokenRes.json();
+
+    if (tokenData.demo) {
+      // Demo: simulate transcription with typed words
+      document.getElementById('micLabel').textContent = 'Demo transcription active';
+      simulateDemoTranscription();
+      return;
+    }
+
+    // Real AssemblyAI WebSocket
+    assemblyWs = new WebSocket(`wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${tokenData.token}`);
+
+    assemblyWs.onopen = () => {
+      document.getElementById('micLabel').textContent = 'Live transcription active';
+      document.getElementById('micLabel').className = 'mic-active-label';
+
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(audioStream);
+      const processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+      source.connect(processor);
+      processor.connect(audioContext.destination);
+
+      processor.onaudioprocess = (e) => {
+        if (assemblyWs.readyState !== WebSocket.OPEN) return;
+        const inputData = e.inputBuffer.getChannelData(0);
+        const pcmData = new Int16Array(inputData.length);
+        for (let i = 0; i < inputData.length; i++) {
+          pcmData[i] = Math.max(-32768, Math.min(32767, inputData[i] * 32768));
+        }
+        assemblyWs.send(pcmData.buffer);
+      };
+    };
+
+    assemblyWs.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      if (msg.message_type === 'PartialTranscript' && msg.text) {
+        interimTranscript = msg.text;
+        updateTranscriptDisplay();
+      } else if (msg.message_type === 'FinalTranscript' && msg.text) {
+        finalTranscript += (finalTranscript ? ' ' : '') + msg.text;
+        interimTranscript = '';
+        updateTranscriptDisplay();
+        saveTranscriptSegment(msg.text);
+      }
+    };
+
+    assemblyWs.onerror = () => {
+      document.getElementById('micLabel').textContent = 'Transcription error — check API key';
+    };
+
+  } catch(e) {
+    document.getElementById('micLabel').textContent = 'Microphone access denied';
+    console.error('Mic error:', e);
+  }
+}
+
+function updateTranscriptDisplay() {
+  const panel = document.getElementById('transcriptPanel');
+  const full = finalTranscript + (interimTranscript ? ` <em class="transcript-interim">${interimTranscript}</em>` : '');
+  panel.innerHTML = full || 'Your words will appear here as you speak...';
+  panel.className = 'transcript-panel' + (finalTranscript || interimTranscript ? ' has-text' : '');
+  panel.scrollTop = panel.scrollHeight;
+}
+
+async function saveTranscriptSegment(text) {
+  if (!currentQId || !sessionId) return;
+  try {
+    await fetch('http://localhost:3001/api/transcription/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, questionId: currentQId, text, is_final: true })
+    });
+  } catch(e) {}
+}
+
+// Demo simulation
+function simulateDemoTranscription() {
+  const samplePhrases = [
+    'I would start by analyzing the requirements',
+    'then design the data model accordingly',
+    'for Salesforce I would use custom objects with appropriate relationships',
+    'and ensure proper sharing rules are configured',
+  ];
+  let i = 0;
+  setInterval(() => {
+    if (!currentQId) return;
+    finalTranscript += (finalTranscript ? ' ' : '') + samplePhrases[i % samplePhrases.length];
+    i++;
+    updateTranscriptDisplay();
+  }, 6000);
+}
+
+// ─── Mic bar animation ────────────────────────────────────────────────────────
+function animateMicBars() {
+  if (!audioStream) return;
+  const ctx = new AudioContext();
+  const analyser = ctx.createAnalyser();
+  const src = ctx.createMediaStreamSource(audioStream);
+  src.connect(analyser);
+  analyser.fftSize = 32;
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  const bars = ['bar1','bar2','bar3','bar4','bar5'];
+
+  function draw() {
+    analyser.getByteFrequencyData(data);
+    bars.forEach((id, i) => {
+      const val = data[i * 2] || 0;
+      const h = Math.max(4, Math.min(18, (val / 255) * 18));
+      const el = document.getElementById(id);
+      if (el) { el.style.height = h + 'px'; el.className = 'mic-bar' + (val > 30 ? ' active' : ''); }
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── Controls ─────────────────────────────────────────────────────────────────
+function toggleMic() {
+  micOn = !micOn;
+  if (callFrame?.executeCommand) callFrame.executeCommand('toggleAudio');
+  if (audioStream) audioStream.getAudioTracks().forEach(t => t.enabled = micOn);
+  document.getElementById('btnMic').className = `ctrl-btn ${micOn ? 'ctrl-btn-normal' : 'ctrl-btn-off'}`;
+  document.getElementById('btnMic').textContent = micOn ? '🎤' : '🔇';
+}
+
+function toggleCam() {
+  camOn = !camOn;
+  if (callFrame?.executeCommand) callFrame.executeCommand('toggleVideo');
+  document.getElementById('btnCam').className = `ctrl-btn ${camOn ? 'ctrl-btn-normal' : 'ctrl-btn-off'}`;
+  document.getElementById('btnCam').textContent = camOn ? '📷' : '📵';
+}
+
+function leaveRoom() {
+  if (callFrame?.dispose) callFrame.dispose();
+  else if (callFrame?.leave) callFrame.leave();
+  if (assemblyWs) assemblyWs.close();
+  if (questionPollInterval) clearInterval(questionPollInterval);
+  document.getElementById('mainRoom').style.display = 'none';
+  document.getElementById('waitingRoom').style.display = 'flex';
+  document.getElementById('statusPill').innerHTML = '<span>Left room</span>';
+}
+</script>
+</body>
+</html>

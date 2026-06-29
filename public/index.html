@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HireIQ — AI Interview Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F0F4FF;--bg2:#FFFFFF;--bg3:#F7F9FF;--bg4:#EEF2FF;--border:rgba(99,102,241,0.1);--border2:rgba(99,102,241,0.22);--text:#1E2235;--text2:#5C6384;--text3:#9CA3C4;--blue:#4F46E5;--blue2:#6366F1;--blue3:#818CF8;--blue-bg:rgba(79,70,229,0.07);--blue-bg2:rgba(79,70,229,0.14);--green:#059669;--green2:#10B981;--green-bg:rgba(5,150,105,0.08);--red:#DC2626;--red2:#EF4444;--red-bg:rgba(220,38,38,0.08);--amber:#D97706;--amber2:#F59E0B;--amber-bg:rgba(217,119,6,0.08);--purple:#7C3AED;--purple2:#8B5CF6;--purple-bg:rgba(124,58,237,0.08);--teal:#0D9488;--teal-bg:rgba(13,148,136,0.08);--mono:'JetBrains Mono',monospace;--radius:10px;--radius-lg:16px;--radius-xl:24px;--shadow-sm:0 1px 4px rgba(79,70,229,0.07),0 1px 2px rgba(0,0,0,0.04);--shadow:0 4px 18px rgba(79,70,229,0.1),0 2px 4px rgba(0,0,0,0.04);--shadow-lg:0 12px 40px rgba(79,70,229,0.14),0 4px 8px rgba(0,0,0,0.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;gap:16px;padding:0 36px;height:66px;background:linear-gradient(135deg,#3730A3 0%,#4F46E5 45%,#6366F1 100%);position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(55,48,163,0.4)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-0.5px;color:#fff}
+.logo-icon{width:34px;height:34px;background:rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.3)}
+.logo-badge{background:rgba(255,255,255,0.18);color:#E0E7FF;font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:1.2px;border:1px solid rgba(255,255,255,0.25)}
+.topbar-divider{width:1px;height:28px;background:rgba(255,255,255,0.15);margin:0 4px}
+.step-trail{display:flex;align-items:center;margin-left:auto}
+.step-item{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.45);transition:all 0.25s}
+.step-item.active{background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.3)}
+.step-item.done{color:rgba(255,255,255,0.75);cursor:pointer}
+.step-item.done:hover{background:rgba(255,255,255,0.12);color:#fff;border-radius:999px}
+.step-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.step-item.done .step-dot{background:#A5F3FC}
+.step-item.active .step-dot{background:#fff;box-shadow:0 0 8px rgba(255,255,255,0.9)}
+.step-arrow{color:rgba(255,255,255,0.25);font-size:11px;margin:0 1px}
+.main-content{flex:1;padding:36px;max-width:1160px;margin:0 auto;width:100%}
+.card{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:26px;margin-bottom:20px;box-shadow:var(--shadow-sm);transition:all 0.2s}
+.card:hover{box-shadow:var(--shadow);border-color:var(--border2)}
+.card-title{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px;color:var(--text)}
+.card-sub{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.18s;font-family:inherit;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;box-shadow:0 4px 14px rgba(79,70,229,0.38)}
+.btn-primary:hover{background:linear-gradient(135deg,#4338CA,#4F46E5);box-shadow:0 6px 22px rgba(79,70,229,0.48);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-secondary{background:var(--bg2);color:var(--text);border:1.5px solid var(--border2);box-shadow:var(--shadow-sm)}
+.btn-secondary:hover{background:var(--bg3);border-color:var(--blue3);color:var(--blue)}
+.btn-ghost{background:none;border:1.5px solid var(--border);color:var(--text2);padding:8px 16px}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-lg{padding:14px 32px;font-size:15px;border-radius:12px}
+.form-group{margin-bottom:18px}
+.label{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;display:block}
+.input,.select,.textarea{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:11px 14px;font-family:inherit;transition:all 0.15s;box-shadow:inset 0 1px 3px rgba(0,0,0,0.03)}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--blue2);background:#fff;box-shadow:0 0 0 3px rgba(99,102,241,0.11)}
+.input::placeholder,.textarea::placeholder{color:var(--text3)}
+.textarea{min-height:120px;resize:vertical;line-height:1.6}
+.select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235C6384' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;background-color:var(--bg3)}
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.22s;background:var(--bg3)}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--blue2);background:var(--blue-bg);transform:translateY(-2px);box-shadow:var(--shadow)}
+.upload-zone input{display:none}
+.upload-icon{font-size:34px;margin-bottom:10px;display:block;line-height:1}
+.upload-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.upload-hint{font-size:12px;color:var(--text3)}
+.upload-name{font-size:12px;color:var(--green);margin-top:10px;font-weight:600}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(220,38,38,0.15)}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(5,150,105,0.15)}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(217,119,6,0.15)}
+.badge-blue{background:var(--blue-bg);color:var(--blue2);border:1px solid var(--border2)}
+.badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(124,58,237,0.15)}
+.status-bar{display:flex;align-items:center;gap:12px;padding:14px 20px;border-radius:var(--radius-lg);margin-bottom:20px;font-size:13px;font-weight:500;box-shadow:var(--shadow-sm)}
+.status-loading{background:linear-gradient(135deg,rgba(79,70,229,0.05),rgba(99,102,241,0.09));border:1.5px solid var(--border2);color:var(--blue)}
+.status-error{background:rgba(220,38,38,0.05);border:1.5px solid rgba(220,38,38,0.2);color:var(--red)}
+.status-success{background:rgba(5,150,105,0.05);border:1.5px solid rgba(5,150,105,0.2);color:var(--green)}
+.spinner{width:16px;height:16px;border:2.5px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.flag-card{background:var(--bg2);border:1.5px solid rgba(220,38,38,0.12);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;border-left:4px solid var(--red);box-shadow:var(--shadow-sm)}
+.flag-card.medium{border-color:rgba(217,119,6,0.15);border-left-color:var(--amber2)}
+.flag-card.low{border-color:var(--border);border-left-color:var(--blue2)}
+.flag-title{font-weight:700;font-size:13px;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.flag-detail{font-size:12px;color:var(--text2);margin-bottom:6px;line-height:1.6}
+.flag-probe{font-size:12px;color:var(--blue);padding:9px 13px;background:var(--blue-bg);border-radius:8px;margin-top:8px;border-left:3px solid var(--blue2);line-height:1.5;font-style:italic}
+.strength-card{background:var(--bg2);border:1.5px solid rgba(5,150,105,0.15);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px;border-left:4px solid var(--green2);font-size:13px;box-shadow:var(--shadow-sm);line-height:1.6}
+.score-ring-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.score-ring{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;border:4px solid}
+.score-ring.good{border-color:var(--green2);color:var(--green);background:var(--green-bg);box-shadow:0 0 24px rgba(16,185,129,0.2)}
+.score-ring.ok{border-color:var(--amber2);color:var(--amber);background:var(--amber-bg);box-shadow:0 0 24px rgba(245,158,11,0.2)}
+.score-ring.poor{border-color:var(--red2);color:var(--red);background:var(--red-bg);box-shadow:0 0 24px rgba(239,68,68,0.2)}
+.section-header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:12px;cursor:pointer;box-shadow:var(--shadow-sm);transition:all 0.2s}
+.section-header:hover{background:var(--bg4);box-shadow:var(--shadow);transform:translateY(-1px)}
+.section-count{margin-left:auto;font-size:12px;color:var(--text3);font-weight:600;background:var(--bg4);padding:3px 10px;border-radius:999px}
+.q-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:12px;transition:all 0.2s;box-shadow:var(--shadow-sm)}
+.q-card:hover{border-color:var(--border2);box-shadow:var(--shadow);transform:translateY(-1px)}
+.q-number{font-size:11px;font-weight:700;color:var(--text3);margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em}
+.q-text{font-size:14px;font-weight:600;margin-bottom:12px;line-height:1.55;color:var(--text)}
+.q-meta{display:flex;gap:8px;flex-wrap:wrap}
+.q-intent{font-size:12px;color:var(--blue);margin-top:12px;padding:10px 14px;background:var(--blue-bg);border-radius:8px;border-left:3px solid var(--blue2);line-height:1.5}
+.interview-layout{display:grid;grid-template-columns:290px 1fr;gap:24px;min-height:calc(100vh - 200px)}
+.sidebar-panel{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:18px;overflow-y:auto;box-shadow:var(--shadow-sm)}
+.main-panel{display:flex;flex-direction:column;gap:18px}
+.active-question-box{background:var(--bg2);border:1.5px solid var(--border2);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow)}
+.ai-feedback-box{background:linear-gradient(135deg,rgba(5,150,105,0.04),rgba(16,185,129,0.07));border:1.5px solid rgba(5,150,105,0.22);border-radius:var(--radius-lg);padding:22px;border-left:4px solid var(--green)}
+.code-editor{font-family:var(--mono);font-size:13px;background:#1A1B2E;border:1.5px solid var(--border2);border-radius:var(--radius);padding:18px;min-height:280px;color:#CDD6F4;resize:vertical;width:100%;line-height:1.8;tab-size:2;box-shadow:inset 0 2px 10px rgba(0,0,0,0.12)}
+.code-editor:focus{outline:none;border-color:var(--blue2);box-shadow:0 0 0 3px rgba(99,102,241,0.11),inset 0 2px 10px rgba(0,0,0,0.12)}
+.score-stars{display:flex;gap:5px}
+.star{width:33px;height:33px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all 0.15s}
+.star:hover,.star.active{background:var(--amber-bg);border-color:var(--amber2);color:var(--amber);transform:scale(1.12)}
+.report-hero{background:linear-gradient(135deg,#3730A3 0%,#4F46E5 55%,#6366F1 100%);border-radius:var(--radius-xl);padding:44px 40px;text-align:center;margin-bottom:28px;box-shadow:0 20px 60px rgba(55,48,163,0.45);position:relative;overflow:hidden}
+.report-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none}
+.recommendation-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 28px;border-radius:999px;font-size:15px;font-weight:700;margin-bottom:14px;background:rgba(255,255,255,0.18);color:#fff;border:1.5px solid rgba(255,255,255,0.35);backdrop-filter:blur(8px)}
+.rec-strong_hire{background:rgba(16,185,129,0.25);border-color:rgba(16,185,129,0.5)}
+.rec-hire{background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.4)}
+.rec-hold{background:rgba(245,158,11,0.2);border-color:rgba(245,158,11,0.4)}
+.rec-no_hire{background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.4)}
+.report-score{font-size:60px;font-weight:900;margin-bottom:4px;color:#fff;letter-spacing:-3px;line-height:1}
+.section-score-row{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--border)}
+.section-score-row:last-child{border-bottom:none}
+.section-score-bar{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.section-score-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.report-list-item{padding:11px 15px;background:var(--bg3);border-radius:var(--radius);margin-bottom:8px;font-size:13px;display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--border);line-height:1.5}
+.divider{height:1px;background:var(--border);margin:24px 0}
+.progress-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue3));border-radius:2px;transition:width 0.4s ease}
+.empty{text-align:center;padding:56px 24px;color:var(--text3)}
+.empty-icon{font-size:44px;margin-bottom:14px}
+.pulse-dot{width:9px;height:9px;border-radius:50%;background:#EF4444;position:relative;flex-shrink:0}
+.pulse-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid #EF4444;animation:pulse-ring 1.2s ease-out infinite}
+@keyframes pulse-ring{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(2.2)}}
+.intake-hero{background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);border-radius:var(--radius-xl);padding:32px 36px;margin-bottom:28px;display:flex;align-items:center;gap:28px;box-shadow:0 12px 36px rgba(79,70,229,0.3);position:relative;overflow:hidden}
+.intake-hero::after{content:'AI';position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:88px;font-weight:900;color:rgba(255,255,255,0.05);line-height:1;pointer-events:none;letter-spacing:-4px}
+.intake-hero-icon{width:56px;height:56px;background:rgba(255,255,255,0.18);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;border:1.5px solid rgba(255,255,255,0.3);flex-shrink:0}
+.intake-hero h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.4px;margin-bottom:4px}
+.intake-hero p{font-size:13px;color:rgba(255,255,255,0.72);line-height:1.5}
+.section-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.or-divider{display:flex;align-items:center;gap:12px;margin:12px 0;color:var(--text3);font-size:12px;font-weight:500}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    HireIQ
+    <span class="logo-badge">BETA</span>
+  </div>
+  <div class="topbar-divider"></div>
+  <div id="providerBadge" style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);font-size:11px;font-weight:600;color:rgba(255,255,255,0.8)">
+    <div style="width:6px;height:6px;border-radius:50%;background:#A5F3FC"></div>
+    <span id="providerLabel">Loading AI...</span>
+  </div>
+  <div class="topbar-divider"></div>
+  <div id="tunnelBadge" style="padding:5px 12px;border-radius:999px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2)" title="Public URL status">
+    <span style="color:rgba(255,255,255,0.5);font-size:11px">Checking tunnel...</span>
+  </div>
+  <div class="step-trail" id="stepTrail"></div>
+</header>
+<div class="main-content">
+  <div id="statusMsg" style="display:none"></div>
+  <div id="pageContent"></div>
+</div>
+</div>
+<script>
+const API = 'https://hireiq-hupy.onrender.com';
+let state={step:'intake',sessionId:null,analysis:null,questions:null,answers:{},scores:{},currentQ:null,transcript:{},interviewStarted:false};
+const STEPS=[{id:'intake',label:'Setup'},{id:'analyze',label:'Analysis'},{id:'questions',label:'Questions'},{id:'interview',label:'Interview'},{id:'report',label:'Report'}];
+const SECTION_META={technical:{icon:'⚙️',label:'Technical',color:'var(--blue)'},scenario:{icon:'🎯',label:'Scenario Based',color:'var(--purple)'},architecture:{icon:'🏗️',label:'Architecture & Thought',color:'var(--teal)'},behavioural:{icon:'🧠',label:'Behavioural',color:'var(--amber)'},coding:{icon:'💻',label:'Coding Exercise',color:'var(--green)'}};
+function navigate(step){state.step=step;renderTrail();({intake:renderIntake,analyze:renderAnalysis,questions:renderQuestions,interview:renderInterview,report:renderReport}[step]||renderIntake)();}
+function renderTrail(){
+  const done=STEPS.findIndex(s=>s.id===state.step);
+  document.getElementById('stepTrail').innerHTML=STEPS.map((s,i)=>{
+    const cls=i<done?'done':i===done?'active':'';
+    const canNav=i<done; // only already-visited steps are clickable
+    const guardMap={
+      analyze: ()=>!!state.analysis,
+      questions: ()=>!!state.questions,
+      interview: ()=>!!state.allQuestions?.length,
+      report: ()=>!!state.report,
+    };
+    const clickable = canNav && (!guardMap[s.id] || guardMap[s.id]());
+    const clickAttr = clickable ? `onclick="navigateTo('${s.id}')" style="cursor:pointer" title="Go to ${s.label}"` : '';
+    const hoverStyle = clickable ? 'opacity:0.85' : '';
+    return`${i>0?'<span class="step-arrow">›</span>':''}
+      <div class="step-item ${cls}" ${clickAttr} onmouseover="this.style.opacity='${clickable?'1':''}'" onmouseout="this.style.opacity=''">
+        <span class="step-dot"></span>${s.label}${clickable?'':i>done?'':' ✓'}
+      </div>`;
+  }).join('');
+}
+
+function navigateTo(step){
+  // Guard: don't navigate forward to steps that haven't been reached
+  const order=['intake','analyze','questions','interview','report'];
+  const current=order.indexOf(state.step);
+  const target=order.indexOf(step);
+  if(target>current) return; // can't skip forward
+  // Clean up any polling intervals if leaving interview
+  if(state.step==='interview' && transcriptPollInterval){
+    clearInterval(transcriptPollInterval); transcriptPollInterval=null;
+  }
+  navigate(step);
+}
+function showStatus(type,msg){const el=document.getElementById('statusMsg');el.style.display='flex';el.className=`status-bar status-${type}`;el.innerHTML=`${type==='loading'?'<div class="spinner"></div>':type==='error'?'✕':'✓'}<span>${msg}</span>`;}
+function hideStatus(){document.getElementById('statusMsg').style.display='none';}
+function setHTML(html){document.getElementById('pageContent').innerHTML=html;}
+
+function renderIntake(){
+  hideStatus();
+  setHTML(`<div style="max-width:760px;margin:0 auto">
+    <div class="intake-hero">
+      <div class="intake-hero-icon">🎯</div>
+      <div><h1>New Interview Setup</h1><p>Upload the job description and resume — Claude analyzes red flags, calculates match score, and prepares personalized questions instantly.</p></div>
+    </div>
+    <div class="card">
+      <div class="section-label">Role & Candidate Details</div>
+      <div class="grid-2">
+        <div class="form-group"><label class="label">Candidate Name</label><input class="input" id="candidateName" placeholder="e.g. Ravi Kumar"></div>
+        <div class="form-group"><label class="label">Role Title</label><input class="input" id="roleTitle" placeholder="e.g. Senior Salesforce Developer"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label class="label">Experience Level</label>
+          <select class="select" id="expLevel">
+            <option value="0-2">0–2 years — Junior</option>
+            <option value="3-5" selected>3–5 years — Mid-level</option>
+            <option value="6-10">6–10 years — Senior</option>
+            <option value="10+">10+ years — Principal / Lead</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="label">Interview Round</label>
+          <select class="select" id="interviewType">
+            <option value="technical">Technical Round</option>
+            <option value="managerial">Managerial Round</option>
+            <option value="final">Final Round</option>
+            <option value="hr">HR Round</option>
+          </select>
+        </div>
+          <div class="form-group" style="margin-top:16px">
+            <label class="label">Role Category <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:11px">— controls question mix</span></label>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px">
+              <div id="rc_developer" onclick="selectRoleCategory('developer')" style="cursor:pointer;padding:12px;border-radius:var(--radius-lg);border:2px solid var(--blue2);background:var(--blue-bg);transition:all 0.2s;text-align:center">
+                <div style="font-size:18px;margin-bottom:4px">💻</div>
+                <div style="font-weight:700;font-size:12px;color:var(--text)">Developer</div>
+                <div style="font-size:10px;color:var(--text2);margin-top:2px">Coding mandatory</div>
+              </div>
+              <div id="rc_architect" onclick="selectRoleCategory('architect')" style="cursor:pointer;padding:12px;border-radius:var(--radius-lg);border:2px solid var(--border);background:var(--bg3);transition:all 0.2s;text-align:center">
+                <div style="font-size:18px;margin-bottom:4px">🏗️</div>
+                <div style="font-weight:700;font-size:12px;color:var(--text)">Architect</div>
+                <div style="font-size:10px;color:var(--text2);margin-top:2px">Design focused</div>
+              </div>
+              <div id="rc_manager" onclick="selectRoleCategory('manager')" style="cursor:pointer;padding:12px;border-radius:var(--radius-lg);border:2px solid var(--border);background:var(--bg3);transition:all 0.2s;text-align:center">
+                <div style="font-size:18px;margin-bottom:4px">👔</div>
+                <div style="font-weight:700;font-size:12px;color:var(--text)">Manager</div>
+                <div style="font-size:10px;color:var(--text2);margin-top:2px">Leadership</div>
+              </div>
+              <div id="rc_pmo" onclick="selectRoleCategory('pmo')" style="cursor:pointer;padding:12px;border-radius:var(--radius-lg);border:2px solid var(--border);background:var(--bg3);transition:all 0.2s;text-align:center">
+                <div style="font-size:18px;margin-bottom:4px">📋</div>
+                <div style="font-weight:700;font-size:12px;color:var(--text)">PMO / Delivery</div>
+                <div style="font-size:10px;color:var(--text2);margin-top:2px">No coding / arch</div>
+              </div>
+              <div id="rc_ba" onclick="selectRoleCategory('ba')" style="cursor:pointer;padding:12px;border-radius:var(--radius-lg);border:2px solid var(--border);background:var(--bg3);transition:all 0.2s;text-align:center">
+                <div style="font-size:18px;margin-bottom:4px">📊</div>
+                <div style="font-weight:700;font-size:12px;color:var(--text)">Business Analyst</div>
+                <div style="font-size:10px;color:var(--text2);margin-top:2px">Process + scenarios</div>
+              </div>
+              <div id="rc_hr" onclick="selectRoleCategory('hr')" style="cursor:pointer;padding:12px;border-radius:var(--radius-lg);border:2px solid var(--border);background:var(--bg3);transition:all 0.2s;text-align:center">
+                <div style="font-size:18px;margin-bottom:4px">🤝</div>
+                <div style="font-weight:700;font-size:12px;color:var(--text)">HR / Recruiter</div>
+                <div style="font-size:10px;color:var(--text2);margin-top:2px">Pure behavioural</div>
+              </div>
+            </div>
+            <input type="hidden" id="roleCategory" value="developer">
+          </div>
+      </div>
+        <div class="form-group" style="margin-top:4px">
+          <label class="label">Interview Mode</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px">
+            <div id="modeCard_inperson" onclick="selectMode('inperson')" style="cursor:pointer;padding:14px 16px;border-radius:var(--radius-lg);border:2px solid var(--blue2);background:var(--blue-bg);display:flex;align-items:center;gap:12px;transition:all 0.2s">
+              <div style="width:36px;height:36px;border-radius:10px;background:var(--blue-bg2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏢</div>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text)">In-Person</div>
+                <div style="font-size:11px;color:var(--text2);margin-top:2px">Mic auto-captures candidate speech — no typing</div>
+              </div>
+            </div>
+            <div id="modeCard_virtual" onclick="selectMode('virtual')" style="cursor:pointer;padding:14px 16px;border-radius:var(--radius-lg);border:2px solid var(--border);background:var(--bg3);display:flex;align-items:center;gap:12px;transition:all 0.2s">
+              <div style="width:36px;height:36px;border-radius:10px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💻</div>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text)">Virtual</div>
+                <div style="font-size:11px;color:var(--text2);margin-top:2px">Video room + candidate auto-transcription</div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="grid-2" style="margin-bottom:22px">
+      <div class="card" style="margin-bottom:0">
+        <div class="section-label">Job Description</div>
+        <label class="upload-zone" id="jdUpload" ondragover="dragOver(event,'jdUpload')" ondragleave="dragLeave('jdUpload')" ondrop="dropFile(event,'jd')">
+          <input type="file" id="jdFile" accept=".pdf,.docx,.doc,.txt" onchange="fileChosen('jdFile','jdUpload','jdFileName')">
+          <div class="upload-icon">📄</div>
+          <div class="upload-title">Drop JD file here</div>
+          <div class="upload-hint">PDF, DOCX, TXT supported</div>
+          <div class="upload-name" id="jdFileName"></div>
+        </label>
+        <div class="or-divider">or paste below</div>
+        <textarea class="textarea" id="jdText" placeholder="Paste job description here..." style="min-height:100px"></textarea>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="section-label">Candidate Resume</div>
+        <label class="upload-zone" id="resumeUpload" style="min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center" ondragover="dragOver(event,'resumeUpload')" ondragleave="dragLeave('resumeUpload')" ondrop="dropFile(event,'resume')">
+          <input type="file" id="resumeFile" accept=".pdf,.docx,.doc,.txt" onchange="fileChosen('resumeFile','resumeUpload','resumeFileName')">
+          <div class="upload-icon">📎</div>
+          <div class="upload-title">Drop resume here</div>
+          <div class="upload-hint">PDF, DOCX, TXT supported</div>
+          <div class="upload-name" id="resumeFileName"></div>
+        </label>
+        <div style="margin-top:16px;padding:14px;background:var(--blue-bg);border-radius:var(--radius);border:1.5px solid var(--border2)">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px">✦ What Claude will generate</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.8">🔍 Red flag detection &amp; match score<br>❓ Experience-calibrated questions<br>💻 Coding exercises (for junior roles)<br>📊 Live per-answer AI feedback</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-lg" onclick="submitIntake()" style="width:100%;justify-content:center;font-size:15px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Analyze &amp; Generate Interview Questions
+    </button>
+  </div>`);
+}
+
+// ─── Interview mode selection ─────────────────────────────────────────────────
+function selectRoleCategory(cat) {
+  state.roleCategory = cat;
+  document.getElementById('roleCategory').value = cat;
+  const all = ['developer','architect','manager','pmo','ba','hr','qa'];
+  all.forEach(c => {
+    const el = document.getElementById('rc_' + c);
+    if (!el) return;
+    if (c === cat) {
+      el.style.borderColor = 'var(--blue2)';
+      el.style.background  = 'var(--blue-bg)';
+    } else {
+      el.style.borderColor = 'var(--border)';
+      el.style.background  = 'var(--bg3)';
+    }
+  });
+}
+state.roleCategory = 'developer';
+
+function selectMode(mode) {
+  state.interviewMode = mode;
+  const inperson = document.getElementById('modeCard_inperson');
+  const virtual  = document.getElementById('modeCard_virtual');
+  if (!inperson || !virtual) return;
+  if (mode === 'inperson') {
+    inperson.style.borderColor = 'var(--blue2)';
+    inperson.style.background  = 'var(--blue-bg)';
+    virtual.style.borderColor  = 'var(--border)';
+    virtual.style.background   = 'var(--bg3)';
+  } else {
+    virtual.style.borderColor  = 'var(--blue2)';
+    virtual.style.background   = 'var(--blue-bg)';
+    inperson.style.borderColor = 'var(--border)';
+    inperson.style.background  = 'var(--bg3)';
+  }
+}
+state.interviewMode = 'inperson'; // default
+
+function dragOver(e,id){e.preventDefault();document.getElementById(id).classList.add('drag-over');}
+function dragLeave(id){document.getElementById(id).classList.remove('drag-over');}
+function dropFile(e,type){e.preventDefault();const file=e.dataTransfer.files[0];if(!file)return;const dt=new DataTransfer();dt.items.add(file);if(type==='jd'){document.getElementById('jdFile').files=dt.files;fileChosen('jdFile','jdUpload','jdFileName');}else{document.getElementById('resumeFile').files=dt.files;fileChosen('resumeFile','resumeUpload','resumeFileName');}}
+function fileChosen(inputId,zoneId,nameId){const f=document.getElementById(inputId).files[0];if(f){document.getElementById(nameId).innerHTML='✓ '+f.name;document.getElementById(zoneId).style.borderColor='var(--green)';}}
+
+async function submitIntake(){
+  const candidateName=document.getElementById('candidateName').value.trim();
+  const roleTitle=document.getElementById('roleTitle').value.trim();
+  const expLevel=document.getElementById('expLevel').value;
+  const interviewType=document.getElementById('interviewType').value;
+  const jdText=document.getElementById('jdText').value.trim();
+  const jdFile=document.getElementById('jdFile').files[0];
+  const resumeFile=document.getElementById('resumeFile').files[0];
+  if(!jdText&&!jdFile){showStatus('error','Please provide a Job Description (paste or upload).');return;}
+  if(!resumeFile){showStatus('error','Please upload the candidate resume.');return;}
+  showStatus('loading','Uploading and parsing documents...');
+  const formData=new FormData();
+  formData.append('candidate_name',candidateName);formData.append('role_title',roleTitle);
+  formData.append('experience_level',expLevel);formData.append('interview_type',interviewType);
+  formData.append('role_category', document.getElementById('roleCategory')?.value || 'developer');
+  if(jdText)formData.append('jd_text',jdText);
+  if(jdFile)formData.append('jd_file',jdFile);
+  formData.append('resume',resumeFile);
+  try{
+    const res=await fetch(`${API}/api/intake`,{method:'POST',body:formData});
+    const data=await res.json();
+    if(!data.success)throw new Error(data.error);
+    state.sessionId=data.sessionId;state.candidateName=candidateName;state.roleTitle=roleTitle;state.expLevel=expLevel;
+    showStatus('loading','Claude is analyzing the resume for red flags and skill gaps...');
+    await runAnalysis();
+  }catch(err){showStatus('error','Error: '+err.message);}
+}
+
+async function runAnalysis(){
+  try{
+    const res=await fetch(`${API}/api/analyze`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:state.sessionId})});
+    const data=await res.json();if(!data.success)throw new Error(data.error);
+    state.analysis=data.analysis;showStatus('loading','Generating personalized interview questions...');
+    await runQuestionGen();
+  }catch(err){showStatus('error','Analysis failed: '+err.message);}
+}
+
+async function runQuestionGen(){
+  try{
+    const res=await fetch(`${API}/api/questions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:state.sessionId})});
+    const data=await res.json();if(!data.success)throw new Error(data.error);
+    state.questions=data.questions;hideStatus();navigate('analyze');
+  }catch(err){showStatus('error','Question generation failed: '+err.message);}
+}
+
+function renderAnalysis(){
+  const a=state.analysis;
+  const scoreClass=a.match_score>=70?'good':a.match_score>=50?'ok':'poor';
+  const flags=a.red_flags||[];const strengths=a.strengths||[];
+  const flagsHTML=flags.map(f=>`<div class="flag-card ${f.severity}"><div class="flag-title"><span class="badge badge-${f.severity==='high'?'red':f.severity==='medium'?'amber':'blue'}">${f.severity.toUpperCase()}</span>${f.title}</div><div class="flag-detail">${f.detail}</div>${f.probe_question?`<div class="flag-probe">💬 Ask: "${f.probe_question}"</div>`:''}</div>`).join('');
+  const strengthsHTML=strengths.map(s=>`<div class="strength-card"><strong>${s.title}</strong> — ${s.detail}</div>`).join('');
+  setHTML(`<div style="max-width:960px;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px">
+      <div><h1 style="font-size:22px;font-weight:800;letter-spacing:-0.4px">Resume Analysis</h1><p style="color:var(--text2);margin-top:3px">${state.candidateName||'Candidate'} — ${state.roleTitle||'Role'}</p></div>
+      <button class="btn btn-primary" style="margin-left:auto" onclick="navigate('questions')">Review Questions <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+    <div class="grid-3" style="margin-bottom:24px">
+      <div class="card" style="margin-bottom:0;text-align:center;padding:28px"><div class="score-ring-wrap"><div class="score-ring ${scoreClass}">${a.match_score}%</div><div style="font-size:12px;font-weight:600;color:var(--text2);margin-top:4px">Match Score</div></div></div>
+      <div class="card" style="margin-bottom:0"><div class="section-label">Candidate Summary</div><p style="font-size:13px;color:var(--text2);line-height:1.7">${a.candidate_summary||'—'}</p></div>
+      <div class="card" style="margin-bottom:0"><div class="section-label">Role Needs</div><p style="font-size:13px;color:var(--text2);line-height:1.7">${a.role_summary||'—'}</p></div>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">🚩 Red Flags <span class="badge badge-red">${flags.length}</span></div>
+        ${flagsHTML||'<div class="empty"><div class="empty-icon">✅</div><div style="font-weight:600">No red flags found</div></div>'}
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">✅ Strengths <span class="badge badge-green">${strengths.length}</span></div>
+        ${strengthsHTML||'<div class="empty"><div>No strengths noted</div></div>'}
+        ${a.recommended_focus_areas?.length?`<div style="margin-top:18px"><div class="section-label">Focus Areas</div><div style="display:flex;flex-wrap:wrap;gap:6px">${a.recommended_focus_areas.map(f=>`<span class="badge badge-blue" style="padding:6px 12px;font-size:12px">${f}</span>`).join('')}</div></div>`:''}
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:flex-end">
+      <button class="btn btn-primary btn-lg" onclick="navigate('questions')">Review Questions <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>`);
+}
+
+// ─── Question Editor State ────────────────────────────────────────────────────
+// editingQ = { sectionIdx, qIdx } — which question is in edit mode
+// addingQ   = sectionIdx          — which section is showing the add form
+let editingQ = null;
+let addingQ  = null;
+
+function renderQuestions(){
+  // NOTE: do NOT reset editingQ here — it is set before calling renderQuestions
+  const q = state.questions;
+  const sections = q?.sections || [];
+  const totalQ = sections.reduce((a,s) => a + s.questions.length, 0);
+
+  const sectionsHTML = sections.map((section, si) => {
+    const meta = SECTION_META[section.type] || { icon:'❓', label:section.label, color:'var(--blue)' };
+    const qHTML = section.questions.map((q, qi) => buildQCard(q, qi, si, meta)).join('');
+    const addFormId = `addForm_${si}`;
+    return `
+      <div style="margin-bottom:28px" id="section_${si}">
+        <div class="section-header" style="border-left:4px solid ${meta.color}">
+          <span style="font-size:18px">${meta.icon}</span>
+          <strong style="font-size:14px">${meta.label}</strong>
+          <span class="section-count">${section.questions.length} question${section.questions.length!==1?'s':''}</span>
+          <button class="btn btn-ghost btn-sm" style="margin-left:8px;font-size:11px;padding:4px 10px" onclick="showAddForm(${si})">+ Add Question</button>
+        </div>
+        ${qHTML}
+        <div id="${addFormId}" style="display:none;background:var(--bg2);border:1.5px dashed var(--blue2);border-radius:var(--radius-lg);padding:18px;margin-top:8px">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">Add Custom Question to ${meta.label}</div>
+          <div class="form-group">
+            <label class="label">Question Text</label>
+            <textarea class="textarea" id="addQ_text_${si}" placeholder="Type your question here..." style="min-height:80px"></textarea>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="label">What does this test?</label>
+              <input class="input" id="addQ_intent_${si}" placeholder="e.g. Problem solving ability">
+            </div>
+            <div class="form-group">
+              <label class="label">Time (minutes)</label>
+              <input class="input" id="addQ_time_${si}" type="number" value="5" min="1" max="30">
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+              <input type="checkbox" id="addQ_coding_${si}" onchange="toggleCodingFields(${si})"> Coding exercise
+            </label>
+          </div>
+          <div id="addQ_codingFields_${si}" style="display:none;margin-bottom:14px">
+            <div class="form-group">
+              <label class="label">Language</label>
+              <select class="select" id="addQ_lang_${si}" style="max-width:200px">
+                <option value="Apex">Apex (Salesforce)</option>
+                <option value="Python">Python</option>
+                <option value="JavaScript">JavaScript</option>
+                <option value="Java">Java</option>
+                <option value="C++">C++</option>
+                <option value="SOQL">SOQL / SQL</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="label">Starter Code (optional)</label>
+              <textarea class="textarea" id="addQ_starter_${si}" placeholder="def solution():
+    pass" style="min-height:80px;font-family:var(--mono);font-size:12px"></textarea>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="saveCustomQuestion(${si})">✓ Add Question</button>
+            <button class="btn btn-ghost btn-sm" onclick="hideAddForm(${si})">Cancel</button>
+            <button class="btn btn-ghost btn-sm" style="margin-left:auto;color:var(--purple);border-color:var(--purple-bg)" onclick="aiGenerateForSection(${si},'${section.type}')">✦ AI Generate for this section</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  setHTML(`<div style="max-width:900px;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px">
+      <div>
+        <h1 style="font-size:22px;font-weight:800;letter-spacing:-0.4px">Interview Questions</h1>
+        <p style="color:var(--text2);margin-top:3px">${totalQ} questions · ${q?.experience_label||''} · ${state.candidateName||'Candidate'}</p>
+      </div>
+      <button class="btn btn-secondary" onclick="navigate('analyze')" style="margin-left:auto">← Analysis</button>
+      <button class="btn btn-primary" onclick="startInterview(state.interviewMode==='virtual'?'video':'inperson')">
+        ${(state.interviewMode||'inperson')==='virtual'?'📹 Start Video Room':'🏢 Start In-Person Interview'}
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="navigate('intake')" style="font-size:12px">Change Mode</button>
+    </div>
+
+    <div style="padding:12px 16px;background:var(--blue-bg);border:1.5px solid var(--border2);border-radius:var(--radius);margin-bottom:24px;font-size:13px;color:var(--blue);display:flex;align-items:center;gap:8px">
+      ✏️ <strong>Panel controls:</strong> Edit, delete, reorder, or add custom questions. Click ✦ AI Generate to replace a question with a fresh AI one.
+    </div>
+
+    ${sectionsHTML}
+
+    <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:8px;padding:20px 0">
+      <button class="btn btn-secondary" onclick="navigate('analyze')">← Back</button>
+      <button class="btn btn-primary btn-lg" onclick="startInterview(state.interviewMode==='virtual'?'video':'inperson')">
+        ${(state.interviewMode||'inperson')==='virtual'?'📹 Start Video Room':'🏢 Start In-Person Interview'}
+      </button>
+    </div>
+  </div>`);
+}
+
+function buildQCard(q, qi, si, meta) {
+  const isEditing = editingQ && editingQ.si === si && editingQ.qi === qi;
+  if (isEditing) {
+    return `
+      <div class="q-card" style="border-color:var(--blue2);background:var(--blue-bg)">
+        <div class="q-number" style="color:var(--blue)">✏️ Editing ${meta.icon} ${meta.label} · Q${qi+1}</div>
+        <div class="form-group" style="margin-top:8px">
+          <label class="label">Question Text</label>
+          <textarea class="textarea" id="edit_q_${si}_${qi}" style="min-height:80px">${q.question}</textarea>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="label">What does this test?</label>
+            <input class="input" id="edit_intent_${si}_${qi}" value="${q.intent||''}">
+          </div>
+          <div class="form-group">
+            <label class="label">Follow-up question</label>
+            <input class="input" id="edit_followup_${si}_${qi}" value="${q.follow_up||''}">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-primary btn-sm" onclick="saveEditQuestion(${si},${qi})">✓ Save</button>
+          <button class="btn btn-ghost btn-sm" onclick="cancelEdit()">Cancel</button>
+        </div>
+      </div>`;
+  }
+
+  return `<div class="q-card" id="qcard_${si}_${qi}">${buildQCardInner(q, qi, si, meta)}</div>`;
+}
+
+// ─── Edit question — in-place DOM swap, no full re-render ─────────────────────
+function startEditQuestion(si, qi) {
+  const q = state.questions.sections[si].questions[qi];
+  const card = document.getElementById(`qcard_${si}_${qi}`);
+  if (!card) return;
+
+  // Swap card content to edit form in-place
+  card.style.borderColor = 'var(--blue2)';
+  card.style.background  = 'var(--blue-bg)';
+  card.innerHTML = `
+    <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em">✏️ Editing Question ${qi+1}</div>
+    <div class="form-group">
+      <label class="label">Question Text</label>
+      <textarea class="textarea" id="edit_q_${si}_${qi}" style="min-height:90px;font-size:14px">${q.question}</textarea>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="label">What does this test?</label>
+        <input class="input" id="edit_intent_${si}_${qi}" value="${(q.intent||'').replace(/"/g,'&quot;')}">
+      </div>
+      <div class="form-group">
+        <label class="label">Follow-up question</label>
+        <input class="input" id="edit_followup_${si}_${qi}" value="${(q.follow_up||'').replace(/"/g,'&quot;')}">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary btn-sm" onclick="saveEditQuestion(${si},${qi})">✓ Save Changes</button>
+      <button class="btn btn-ghost btn-sm" onclick="cancelEdit(${si},${qi})">✕ Cancel</button>
+    </div>
+  `;
+  // Focus the textarea
+  setTimeout(() => document.getElementById(`edit_q_${si}_${qi}`)?.focus(), 50);
+}
+
+function cancelEdit(si, qi) {
+  // Re-render just this card back to read mode
+  const meta = SECTION_META[state.questions.sections[si]?.type] || { icon:'❓', label:'Question', color:'var(--blue)' };
+  const q = state.questions.sections[si].questions[qi];
+  const card = document.getElementById(`qcard_${si}_${qi}`);
+  if (!card) { renderQuestions(); return; }
+  card.style.borderColor = '';
+  card.style.background  = '';
+  card.innerHTML = buildQCardInner(q, qi, si, meta);
+}
+
+function saveEditQuestion(si, qi) {
+  const q = state.questions.sections[si].questions[qi];
+  const newText     = document.getElementById(`edit_q_${si}_${qi}`)?.value?.trim();
+  const newIntent   = document.getElementById(`edit_intent_${si}_${qi}`)?.value?.trim();
+  const newFollowup = document.getElementById(`edit_followup_${si}_${qi}`)?.value?.trim();
+
+  if (!newText) { alert('Question text cannot be empty.'); return; }
+
+  q.question  = newText;
+  q.intent    = newIntent || q.intent;
+  q.follow_up = newFollowup || q.follow_up;
+
+  // Swap back to read mode in-place
+  const meta = SECTION_META[state.questions.sections[si]?.type] || { icon:'❓', label:'Question', color:'var(--blue)' };
+  const card = document.getElementById(`qcard_${si}_${qi}`);
+  if (card) {
+    card.style.borderColor = 'var(--green2)';
+    card.style.background  = 'var(--green-bg)';
+    card.innerHTML = buildQCardInner(q, qi, si, meta);
+    // Flash green briefly then restore
+    setTimeout(() => { card.style.borderColor = ''; card.style.background = ''; }, 1500);
+  }
+}
+
+// ─── Build just the inner HTML of a question card (for in-place swaps) ────────
+function buildQCardInner(q, qi, si, meta) {
+  return `
+    <div style="display:flex;align-items:flex-start;gap:10px">
+      <div style="flex:1">
+        <div class="q-number">${meta.icon} ${meta.label} · Q${qi+1}</div>
+        <div class="q-text">${q.question}</div>
+        <div class="q-meta">
+          <span class="badge badge-blue">⏱ ${q.time_minutes||5} min</span>
+          ${q.is_coding?'<span class="badge badge-green">💻 Coding</span>':''}
+          ${q.coding_language_hint?`<span class="badge badge-purple">${q.coding_language_hint}</span>`:''}
+        </div>
+        <div class="q-intent">🎯 <strong>Testing:</strong> ${q.intent||'—'}</div>
+        ${q.follow_up?`<div class="q-intent" style="margin-top:6px;background:var(--purple-bg);border-left-color:var(--purple2);color:var(--purple)">↩ <strong>Follow-up:</strong> ${q.follow_up}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+        <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 8px" onclick="startEditQuestion(${si},${qi})">✏️ Edit</button>
+        <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 8px;color:var(--purple);border-color:var(--purple-bg)" onclick="aiRegenerateQuestion(${si},${qi},'${(state.questions?.sections||[])[si]?.type||'technical'}')">✦ AI</button>
+        ${qi > 0 ? `<button class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 8px" onclick="moveQuestion(${si},${qi},-1)">↑</button>` : ''}
+        ${qi < ((state.questions?.sections||[])[si]?.questions?.length||0)-1 ? `<button class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 8px" onclick="moveQuestion(${si},${qi},1)">↓</button>` : ''}
+        <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:4px 8px;color:var(--red);border-color:var(--red-bg)" onclick="deleteQuestion(${si},${qi})">🗑</button>
+      </div>
+    </div>`;
+}
+
+// ─── Delete question ───────────────────────────────────────────────────────────
+function deleteQuestion(si, qi) {
+  if (!confirm('Remove this question from the interview?')) return;
+  state.questions.sections[si].questions.splice(qi, 1);
+  renderQuestions();
+}
+
+// ─── Move question ─────────────────────────────────────────────────────────────
+function moveQuestion(si, qi, dir) {
+  const qs = state.questions.sections[si].questions;
+  const target = qi + dir;
+  if (target < 0 || target >= qs.length) return;
+  [qs[qi], qs[target]] = [qs[target], qs[qi]];
+  renderQuestions();
+}
+
+// ─── Add custom question ───────────────────────────────────────────────────────
+function showAddForm(si) {
+  document.getElementById(`addForm_${si}`).style.display = 'block';
+  document.getElementById(`addQ_text_${si}`)?.focus();
+}
+function hideAddForm(si) { document.getElementById(`addForm_${si}`).style.display = 'none'; }
+function toggleCodingFields(si) {
+  const checked = document.getElementById(`addQ_coding_${si}`)?.checked;
+  document.getElementById(`addQ_codingFields_${si}`).style.display = checked ? 'block' : 'none';
+}
+
+function saveCustomQuestion(si) {
+  const text    = document.getElementById(`addQ_text_${si}`)?.value?.trim();
+  const intent  = document.getElementById(`addQ_intent_${si}`)?.value?.trim();
+  const time    = parseInt(document.getElementById(`addQ_time_${si}`)?.value) || 5;
+  const isCoding = document.getElementById(`addQ_coding_${si}`)?.checked;
+  const lang    = isCoding ? document.getElementById(`addQ_lang_${si}`)?.value : null;
+  const starter = isCoding ? document.getElementById(`addQ_starter_${si}`)?.value : null;
+
+  if (!text) { alert('Please enter the question text.'); return; }
+
+  const section = state.questions.sections[si];
+  const newQ = {
+    id: 'custom_' + Date.now(),
+    question: text,
+    intent: intent || 'Custom question added by interviewer',
+    expected_answer_depth: '',
+    follow_up: '',
+    scoring_guide: '',
+    time_minutes: time,
+    is_coding: isCoding,
+    coding_language_hint: lang,
+    starter_code: starter,
+    _custom: true,
+  };
+  section.questions.push(newQ);
+  renderQuestions();
+}
+
+// ─── AI regenerate single question ────────────────────────────────────────────
+async function aiRegenerateQuestion(si, qi, sectionType) {
+  const section = state.questions.sections[si];
+  const oldQ = section.questions[qi];
+  const card = document.getElementById(`qcard_${si}_${qi}`);
+  if (card) card.style.opacity = '0.4';
+
+  try {
+    const res = await fetch(`${API}/api/regenerate-question`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: state.sessionId,
+        sectionType,
+        experienceLevel: state.expLevel,
+        roleTitle: state.roleTitle,
+        existingQuestion: oldQ.question,
+        context: state.analysis?.recommended_focus_areas?.join(', ') || ''
+      })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    section.questions[qi] = { ...oldQ, ...data.question };
+    renderQuestions();
+  } catch(e) {
+    if (card) card.style.opacity = '1';
+    showStatus('error', 'AI regenerate failed: ' + e.message);
+  }
+}
+
+// ─── AI generate new question for a section ────────────────────────────────────
+async function aiGenerateForSection(si, sectionType) {
+  const section = state.questions.sections[si];
+  showStatus('loading', 'AI is generating a new question...');
+  try {
+    const res = await fetch(`${API}/api/regenerate-question`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: state.sessionId,
+        sectionType,
+        experienceLevel: state.expLevel,
+        roleTitle: state.roleTitle,
+        existingQuestion: '',
+        context: state.analysis?.recommended_focus_areas?.join(', ') || ''
+      })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    section.questions.push({ ...data.question, id: 'ai_' + Date.now() });
+    hideStatus();
+    renderQuestions();
+  } catch(e) {
+    showStatus('error', 'AI generate failed: ' + e.message);
+  }
+}
+
+function startInterview(mode){
+  state.interviewStarted=true;state.allQuestions=[];
+  for(const section of state.questions?.sections||[])for(const q of section.questions){q._sectionType=section.type;q._sectionLabel=section.label;state.allQuestions.push(q);}
+  state.currentQIndex=0;
+  // Use mode from button OR from intake mode selection
+  const effectiveMode = mode || state.interviewMode || 'manual';
+  if(effectiveMode==='video' || effectiveMode==='virtual'){
+    launchVideoRoom();
+  } else {
+    // In-person mode: navigate to interview with speech recognition
+    state.mode = 'inperson';
+    navigate('interview');
+  }
+}
+
+function renderInterview(){
+  const allQ=state.allQuestions||[];const totalQ=allQ.length;const doneCount=Object.keys(state.answers).length;const progressPct=totalQ>0?Math.round((doneCount/totalQ)*100):0;
+  const sidebarItems=allQ.map((q,i)=>{
+    const meta=SECTION_META[q._sectionType]||{icon:'❓'};const done=state.answers[q.id];const active=i===state.currentQIndex;
+    return`<div onclick="selectQuestion(${i})" style="padding:10px 12px;border-radius:var(--radius);margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.15s;background:${active?'var(--blue-bg2)':done?'var(--green-bg)':'transparent'};border:1.5px solid ${active?'var(--border2)':done?'rgba(5,150,105,0.2)':'transparent'};transform:${active?'translateX(2px)':'none'}">
+      <span style="font-size:15px">${done?'✅':meta.icon}</span>
+      <div style="flex:1;min-width:0"><div style="font-size:10px;font-weight:700;color:${active?'var(--blue)':'var(--text3)'};text-transform:uppercase;letter-spacing:0.05em">${q._sectionLabel}</div><div style="font-size:12px;color:${active?'var(--blue)':'var(--text2)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:${active?600:400}">${q.question.substring(0,55)}...</div></div>
+    </div>`;
+  }).join('');
+  const currentQ=allQ[state.currentQIndex];const currentMeta=SECTION_META[currentQ?._sectionType]||{icon:'❓',label:'—'};const currentScore=state.scores[currentQ?.id]||0;const currentFeedback=state.feedback?.[currentQ?.id];const isLastQ=state.currentQIndex>=totalQ-1;
+  const starsHTML=[1,2,3,4,5].map(n=>`<div class="star ${currentScore>=n?'active':''}" onclick="setScore('${currentQ?.id}',${n})">★</div>`).join('');
+  setHTML(`<div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
+      <div><h1 style="font-size:19px;font-weight:800">Live Interview</h1><p style="color:var(--text2);font-size:13px">${state.candidateName||'Candidate'} · ${state.roleTitle||''}</p></div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+        <div style="text-align:right"><div style="font-size:12px;font-weight:600;color:var(--text2)">${doneCount}/${totalQ} answered</div><div class="progress-bar" style="width:140px;margin-top:5px"><div class="progress-fill" style="width:${progressPct}%"></div></div></div>
+        ${doneCount>0?`<button class="btn btn-primary btn-sm" onclick="generateReport()">📊 Finish &amp; Report</button>`:''}
+      </div>
+    </div>
+    <div class="interview-layout">
+      <div class="sidebar-panel"><div class="section-label">Questions</div>${sidebarItems}</div>
+      <div class="main-panel">
+        ${currentQ?`
+        <div class="active-question-box">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+            <span style="font-size:20px">${currentMeta.icon}</span>
+            <span class="badge badge-blue">${currentMeta.label}</span>
+            ${currentQ.is_coding?'<span class="badge badge-green">💻 Coding</span>':''}
+            <span style="margin-left:auto;font-size:12px;font-weight:600;color:var(--text3)">Q${state.currentQIndex+1} / ${totalQ}</span>
+          </div>
+          <div style="font-size:17px;font-weight:700;line-height:1.5;margin-bottom:16px">${currentQ.question}</div>
+          <div style="background:var(--blue-bg);border-radius:var(--radius);padding:11px 15px;margin-bottom:18px;font-size:12px;color:var(--blue);border-left:3px solid var(--blue2);line-height:1.5"><strong>🎯 Testing:</strong> ${currentQ.intent}</div>
+          ${currentQ.is_coding?renderCodingInput(currentQ):renderTranscriptInput(currentQ)}
+          <div style="display:flex;align-items:center;gap:14px;margin-top:18px;padding-top:18px;border-top:1.5px solid var(--border)">
+            <div><div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px">Interviewer Score</div><div class="score-stars" id="starsFor_${currentQ.id}">${starsHTML}</div></div>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              ${state.currentQIndex>0?'<button class="btn btn-ghost btn-sm" onclick="prevQuestion()">← Prev</button>':''}
+              ${!isLastQ?'<button class="btn btn-secondary btn-sm" onclick="nextQuestion()">Next →</button>':''}
+              ${!state.answers[currentQ.id]?`<button class="btn btn-primary btn-sm" onclick="submitAnswer('${currentQ.id}')">Submit &amp; Get AI Feedback</button>`:'<span class="badge badge-green">✓ Submitted</span>'}
+            </div>
+          </div>
+        </div>
+        ${currentFeedback?renderFeedback(currentFeedback,currentQ.is_coding):''}
+        `:'<div class="empty"><div class="empty-icon">🎉</div><div style="font-size:15px;font-weight:600">All questions answered!</div></div>'}
+        ${doneCount===totalQ&&totalQ>0?'<div style="text-align:center;padding:24px"><button class="btn btn-primary btn-lg" onclick="generateReport()">📊 Generate Final Report</button></div>':''}
+      </div>
+    </div>
+  </div>`);
+}
+
+function renderTranscriptInput(q) {
+  const saved = state.transcript?.[q.id] || '';
+  const isInPerson = state.mode === 'inperson' || state.interviewMode === 'inperson';
+
+  if (isInPerson) {
+    // In-person: speech recognition mode
+    return `<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="section-label" style="margin-bottom:0">🎙 Live Transcript — Candidate Speech</div>
+        <div id="listenStatus_${q.id}" style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text3)">
+          <div id="listenDot_${q.id}" style="width:8px;height:8px;border-radius:50%;background:var(--text3)"></div>
+          Not listening
+        </div>
+      </div>
+
+      <div id="transcriptBox_${q.id}" style="min-height:160px;max-height:260px;overflow-y:auto;padding:14px 16px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-lg);font-size:14px;line-height:1.8;color:var(--text2);transition:border 0.2s">
+        ${saved || '<span style="color:var(--text3);font-style:italic">Click Start Listening then let the candidate speak...</span>'}
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+        <button id="listenBtn_${q.id}" class="btn btn-green" onclick="startListening('${q.id}')">
+          🎙 Start Listening
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="stopListening('${q.id}')">⏹ Stop</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearTranscriptBox('${q.id}')">🗑 Clear</button>
+        <span style="font-size:11px;color:var(--text3);margin-left:auto">Uses browser mic — works on Chrome/Edge</span>
+      </div>
+
+      <input type="hidden" id="transcriptInput_${q.id}" value="${saved}">
+    </div>`;
+  }
+
+  // Virtual / manual mode: textarea
+  return `<div>
+    <div class="section-label">Candidate Answer / Transcript</div>
+    <textarea class="textarea" id="transcriptInput_${q.id}"
+      placeholder="Type or paste the candidate's answer..."
+      style="min-height:140px"
+      onchange="saveTranscript('${q.id}',this.value)">${saved}</textarea>
+  </div>`;
+}
+function renderCodingInput(q){const lang=q.coding_language_hint||'Apex';
+  const defaultCode = lang.toLowerCase().includes('apex') ?
+    '// Apex solution\npublic class Solution {\n    public static void execute() {\n        // write your code here\n    }\n}' :
+    lang.toLowerCase().includes('python') ? '# Python solution\ndef solution():\n    pass\n' :
+    lang.toLowerCase().includes('sql') || lang.toLowerCase().includes('soql') ? '-- SOQL Query\nSELECT Id, Name\nFROM Account\nWHERE CreatedDate = TODAY' :
+    '// Write your solution here\n';
+  const saved=state.code?.[q.id]||(q.starter_code||defaultCode);return`<div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div class="section-label" style="margin-bottom:0">Code Editor</div><select class="select" id="langSelect_${q.id}" style="width:130px;padding:6px 10px;font-size:12px"><option value="apex" ${lang.toLowerCase().includes('apex')?'selected':''}>Apex (Salesforce)</option><option value="python" ${lang.toLowerCase().includes('python')?'selected':''}>Python</option><option value="javascript" ${lang.toLowerCase().includes('javascript')||lang.toLowerCase().includes('js')?'selected':''}>JavaScript</option><option value="java" ${lang.toLowerCase().includes('java')&&!lang.toLowerCase().includes('script')&&!lang.toLowerCase().includes('apex')?'selected':''}>Java</option><option value="cpp">C++</option><option value="soql">SOQL / SQL</option></select></div><textarea class="code-editor" id="codeInput_${q.id}" spellcheck="false" onkeydown="handleTab(event)">${saved}</textarea></div>`;}
+function handleTab(e){if(e.key==='Tab'){e.preventDefault();const ta=e.target,s=ta.selectionStart;ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(ta.selectionEnd);ta.selectionStart=ta.selectionEnd=s+2;}}
+function renderFeedback(fb,isCoding){
+  if(isCoding)return`<div class="ai-feedback-box"><div style="font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">🤖 AI Code Evaluation <span class="badge badge-${fb.verdict==='excellent'||fb.verdict==='good'?'green':fb.verdict==='average'?'amber':'red'}">${(fb.verdict||'').toUpperCase()}</span><span class="badge badge-blue">Score: ${fb.overall_score}/5</span></div><p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">${fb.summary}</p><div class="grid-2"><div><div class="section-label">What Went Well</div>${(fb.what_was_good||[]).map(g=>`<div class="report-list-item" style="background:var(--green-bg);border-color:rgba(5,150,105,0.15);color:var(--green)">✓ ${g}</div>`).join('')}</div><div><div class="section-label">Improvements</div>${(fb.improvements||[]).map(g=>`<div class="report-list-item" style="background:var(--amber-bg);border-color:rgba(217,119,6,0.15);color:var(--amber)">→ ${g}</div>`).join('')}</div></div>${fb.sample_better_approach?`<div style="margin-top:12px;padding:12px 15px;background:var(--blue-bg);border-radius:var(--radius);font-size:12px;color:var(--blue);border-left:3px solid var(--blue2)">💡 Better approach: ${fb.sample_better_approach}</div>`:''}</div>`;
+  const vc=fb.verdict==='strong'?'badge-green':fb.verdict==='adequate'?'badge-blue':fb.verdict==='weak'?'badge-amber':'badge-red';
+  return`<div class="ai-feedback-box"><div style="font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">🤖 AI Feedback <span class="badge ${vc}">${(fb.verdict||'').toUpperCase()}</span><span class="badge badge-blue">AI: ${fb.score_ai}/5</span></div><p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">${fb.summary}</p><div class="grid-2"><div><div class="section-label">Positives</div>${(fb.positives||[]).map(g=>`<div class="report-list-item" style="background:var(--green-bg);border-color:rgba(5,150,105,0.15);color:var(--green)">✓ ${g}</div>`).join('')}</div><div><div class="section-label">Gaps</div>${(fb.gaps||[]).map(g=>`<div class="report-list-item" style="background:var(--amber-bg);border-color:rgba(217,119,6,0.15);color:var(--amber)">⚠ ${g}</div>`).join('')}</div></div>${fb.follow_up_needed&&fb.suggested_follow_up?`<div style="margin-top:12px;padding:11px 15px;background:var(--purple-bg);border-radius:var(--radius);font-size:12px;color:var(--purple);border-left:3px solid var(--purple2)">💬 Follow-up: ${fb.suggested_follow_up}</div>`:''}</div>`;
+}
+function saveTranscript(qId,val){state.transcript=state.transcript||{};state.transcript[qId]=val;}
+function setScore(qId,n){state.scores[qId]=n;const c=document.getElementById(`starsFor_${qId}`);if(c)c.innerHTML=[1,2,3,4,5].map(i=>`<div class="star ${n>=i?'active':''}" onclick="setScore('${qId}',${i})">★</div>`).join('');}
+async function submitAnswer(qId){
+  const q=state.allQuestions.find(q=>q.id===qId);if(!q)return;
+  if(q.is_coding){
+    const code=document.getElementById(`codeInput_${qId}`)?.value||'';const lang=document.getElementById(`langSelect_${qId}`)?.value||'python';
+    if(!code.trim()){showStatus('error','Please write some code before submitting.');return;}
+    state.code=state.code||{};state.code[qId]=code;showStatus('loading','Claude is evaluating the code...');
+    try{const res=await fetch(`${API}/api/evaluate-code`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:state.sessionId,questionId:qId,question:q.question,code,language:lang})});const data=await res.json();if(!data.success)throw new Error(data.error);state.feedback=state.feedback||{};state.feedback[qId]=data.feedback;state.answers[qId]={submitted:true,code,language:lang};hideStatus();renderInterview();}
+    catch(e){showStatus('error','Evaluation error: '+e.message);}
+  }else{
+    const transcript=document.getElementById(`transcriptInput_${qId}`)?.value||'';
+    if(!transcript.trim()){showStatus('error',"Please enter the candidate's answer before submitting.");return;}
+    state.transcript=state.transcript||{};state.transcript[qId]=transcript;showStatus('loading','Claude is analyzing the answer...');
+    try{const res=await fetch(`${API}/api/evaluate-answer`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:state.sessionId,questionId:qId,question:q.question,intent:q.intent,expected:q.expected_answer_depth,transcript,score:state.scores[qId]||0})});const data=await res.json();if(!data.success)throw new Error(data.error);state.feedback=state.feedback||{};state.feedback[qId]=data.feedback;state.answers[qId]={submitted:true,transcript};hideStatus();renderInterview();}
+    catch(e){showStatus('error','Feedback error: '+e.message);}
+  }
+}
+function selectQuestion(i){state.currentQIndex=i;renderInterview();}
+function nextQuestion(){if(state.currentQIndex<(state.allQuestions?.length||0)-1){state.currentQIndex++;renderInterview();}}
+function prevQuestion(){if(state.currentQIndex>0){state.currentQIndex--;renderInterview();}}
+
+async function generateReport(){
+  showStatus('loading','Claude is generating the final interview report...');
+  try{const res=await fetch(`${API}/api/report`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:state.sessionId})});const data=await res.json();if(!data.success)throw new Error(data.error);state.report=data.report;hideStatus();navigate('report');}
+  catch(e){showStatus('error','Report generation failed: '+e.message);}
+}
+
+function renderReport(){
+  const r=state.report;if(!r){showStatus('error','No report data found.');return;}
+  const recLabels={strong_hire:'🌟 Strong Hire',hire:'✅ Hire',hold:'⏸ Hold',no_hire:'❌ No Hire'};
+  const sectionScores=Object.entries(r.section_scores||{}).filter(([,v])=>v.score>0).map(([key,val])=>{const meta=SECTION_META[key]||{icon:'❓',label:key};const pct=(val.score/5)*100;const color=val.score>=4?'var(--green)':val.score>=3?'var(--blue)':'var(--amber)';return`<div class="section-score-row"><span style="font-size:16px">${meta.icon}</span><span style="width:180px;font-size:13px;font-weight:600">${meta.label}</span><div class="section-score-bar"><div class="section-score-fill" style="width:${pct}%;background:${color}"></div></div><span style="font-size:14px;font-weight:800;width:44px;text-align:right;color:${color}">${val.score}/5</span><span style="font-size:12px;color:var(--text2);flex:1;padding-left:14px;line-height:1.5">${val.comment}</span></div>`;}).join('');
+  const listItems=(items,icon,bg)=>(items||[]).map(i=>`<div class="report-list-item" style="background:${bg};border-color:transparent"><span>${icon}</span><span>${i}</span></div>`).join('');
+  setHTML(`<div style="max-width:940px;margin:0 auto">
+    <div class="report-hero">
+      <div style="margin-bottom:10px"><div class="recommendation-badge rec-${r.recommendation}">${recLabels[r.recommendation]||r.recommendation}</div></div>
+      <div class="report-score">${r.overall_score}<span style="font-size:24px;font-weight:400;opacity:0.7">/100</span></div>
+      <div style="font-size:18px;font-weight:700;color:#fff;margin:8px 0 4px">${state.candidateName||'Candidate'}</div>
+      <div style="color:rgba(255,255,255,0.65);font-size:13px">${state.roleTitle||'Role'} · ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
+      <div style="margin-top:20px;max-width:580px;margin-left:auto;margin-right:auto"><p style="font-size:14px;color:rgba(255,255,255,0.78);line-height:1.75">${r.executive_summary}</p></div>
+      <div style="margin-top:16px;display:inline-block;padding:12px 24px;background:rgba(255,255,255,0.15);border-radius:var(--radius);border:1.5px solid rgba(255,255,255,0.25);font-size:13px;color:#fff;font-weight:600;backdrop-filter:blur(8px)">Next Step: ${r.suggested_next_step}</div>
+    </div>
+    <div class="card"><div class="card-title">📊 Section Breakdown</div><div class="card-sub">Performance across each interview dimension</div>${sectionScores}</div>
+    <div class="grid-2">
+      <div class="card"><div class="card-title">💡 Recommendation Reasoning</div><p style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:8px">${r.recommendation_reasoning}</p></div>
+      <div class="card"><div class="card-title">📋 Next Round Questions</div><div style="margin-top:8px">${r.questions_for_next_round?.length?listItems(r.questions_for_next_round,'→','var(--blue-bg)'):'<div style="color:var(--text3);font-size:13px">No further rounds recommended.</div>'}</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-title">⭐ Standout Moments</div><div style="margin-top:8px">${listItems(r.standout_moments,'✨','var(--green-bg)')}</div></div>
+      <div class="card"><div class="card-title">⚠️ Remaining Concerns</div><div style="margin-top:8px">${listItems(r.concerns,'⚠','var(--amber-bg)')}</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-title">✅ Red Flags Cleared</div><div style="margin-top:8px">${listItems(r.red_flags_cleared,'✓','var(--green-bg)')}</div></div>
+      <div class="card"><div class="card-title">🚩 Red Flags Confirmed</div><div style="margin-top:8px">${listItems(r.red_flags_confirmed,'✗','var(--red-bg)')}</div></div>
+    </div>
+    ${r.suggested_package_note?`<div class="card" style="border-color:var(--border2);background:var(--blue-bg)"><div class="card-title">💰 Package Note</div><p style="font-size:13px;color:var(--text2);margin-top:8px">${r.suggested_package_note}</p></div>`:''}
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:8px;padding:24px 0">
+      <button class="btn btn-ghost" onclick="window.print()">🖨 Print Report</button>
+      <button class="btn btn-secondary" onclick="navigate('interview')">← Back to Interview</button>
+      <button class="btn btn-primary" onclick="navigate('intake')">+ New Interview</button>
+    </div>
+  </div>`);
+}
+
+// ─── PHASE 2: LIVE VIDEO ROOM ─────────────────────────────────────────────────
+let roomData = null;
+let assemblyWs = null;
+let mediaStream = null;
+let liveTranscript = {};
+let interimText = {};
+
+async function launchVideoRoom() {
+  if (!state.sessionId) return;
+  showStatus('loading', 'Checking public URL...');
+  try {
+    // Fetch the current public URL (localhost or Cloudflare tunnel)
+    const urlRes = await fetch(`${API}/api/public-url`);
+    const urlData = await urlRes.json();
+    state.publicUrl = urlData.url;
+    state.isPublic  = urlData.isPublic;
+
+    showStatus('loading', 'Creating video room...');
+    const res = await fetch(`${API}/api/room/create`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: state.sessionId })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    roomData = data.room;
+    state.isDemo = false;
+    hideStatus();
+    renderVideoRoom();
+  } catch(e) { showStatus('error', 'Room creation failed: ' + e.message); }
+}
+
+function renderVideoRoom() {
+  const room = roomData;
+  setHTML(`
+    <div style="max-width:1100px;margin:0 auto">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+        <div>
+          <h1 style="font-size:19px;font-weight:800">Live Interview Room</h1>
+          <p style="color:var(--text2);font-size:13px">${state.candidateName||'Candidate'} · ${state.roleTitle||''}</p>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:10px">
+          <button class="btn btn-secondary btn-sm" onclick="navigate('questions')">← Questions</button>
+          ${Object.keys(state.answers).length>0?`<button class="btn btn-primary btn-sm" onclick="generateReport()">📊 Generate Report</button>`:''}
+        </div>
+      </div>
+
+      ${state.isDemo?`<div style="padding:12px 18px;background:var(--amber-bg);border:1.5px solid rgba(217,119,6,0.2);border-radius:var(--radius);margin-bottom:18px;font-size:13px;color:var(--amber);display:flex;align-items:center;gap:8px">⚠ Demo mode — Add DAILY_API_KEY and ASSEMBLYAI_API_KEY to .env for full video + transcription</div>`:''}
+
+      <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;margin-bottom:20px">
+
+        <!-- Video frame / candidate link panel -->
+        <div class="card" style="margin-bottom:0;padding:0;overflow:hidden;min-height:420px;position:relative">
+          ${room.url && !state.isDemo ? `
+          <iframe src="${room.url}#config.prejoinPageEnabled=false&config.disableDeepLinking=true&userInfo.displayName=Interviewer&config.startWithAudioMuted=false&config.enableWelcomePage=false"
+            allow="camera;microphone;fullscreen;display-capture"
+            style="width:100%;height:100%;min-height:420px;border:none" title="Video Room"></iframe>
+          ` : `
+          <div style="width:100%;height:100%;min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:linear-gradient(135deg,#1E1B4B,#1A2234);color:#8B95A8">
+            <div style="font-size:52px">📹</div>
+            <div style="font-size:15px;font-weight:600;color:#E8EDF5">Video room ready</div>
+            <div style="font-size:13px;color:#8B95A8;text-align:center;max-width:280px;line-height:1.6">Share the candidate link below to start the live session</div>
+            <div style="font-size:11px;color:#6366F1;font-weight:600;text-transform:uppercase;letter-spacing:0.06em">Add DAILY_API_KEY for embedded video</div>
+          </div>`}
+        </div>
+
+        <!-- Right panel: controls + question push -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+          <!-- Candidate link -->
+          <div class="card" style="margin-bottom:0">
+            <div class="card-title" style="font-size:13px">🔗 Candidate Link</div>
+            ${!state.isPublic ? `
+            <div style="padding:10px 14px;background:var(--amber-bg);border:1.5px solid rgba(217,119,6,0.2);border-radius:var(--radius);margin-bottom:10px;font-size:12px;color:var(--amber);line-height:1.6">
+              ⚠ <strong>Localhost detected</strong> — this link only works on your machine.<br>
+              Run <code style="background:rgba(0,0,0,0.1);padding:1px 5px;border-radius:3px">cloudflared tunnel --url http://localhost:3001</code> in a new terminal to get a public link.
+            </div>` : `
+            <div style="padding:8px 12px;background:var(--green-bg);border:1.5px solid rgba(5,150,105,0.2);border-radius:var(--radius);margin-bottom:10px;font-size:12px;color:var(--green)">
+              ✓ <strong>Public URL active</strong> — candidate can join from any device
+            </div>`}
+            <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5">Share this link with the candidate:</div>
+            <div style="background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--text2);word-break:break-all;margin-bottom:10px">${room.candidate_link}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="copyAndAlert('${room.candidate_link}')">📋 Copy Link</button>
+              <button class="btn btn-secondary btn-sm" onclick="window.open('${room.candidate_link}','_blank')">👁 Preview</button>
+              <button class="btn btn-ghost btn-sm" onclick="shareViaEmail('${room.candidate_link}')">📧 Email</button>
+            </div>
+          </div>
+
+          <!-- Push question to candidate -->
+          <div class="card" style="margin-bottom:0;flex:1">
+            <div class="card-title" style="font-size:13px;margin-bottom:10px">📤 Push Question to Candidate</div>
+            <div id="qPushList" style="max-height:280px;overflow-y:auto">
+              ${(state.allQuestions||[]).map((q,i)=>{
+                const meta = {technical:'⚙️',scenario:'🎯',architecture:'🏗️',behavioural:'🧠',coding:'💻'};
+                const icon = meta[q._sectionType]||'❓';
+                const done = state.answers[q.id];
+                const active = i===state.currentQIndex;
+                return `<div onclick="pushQuestion(${i})" style="padding:10px 12px;border-radius:var(--radius);margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:8px;border:1.5px solid ${active?'var(--blue2)':done?'rgba(5,150,105,0.2)':'var(--border)'};background:${active?'var(--blue-bg)':done?'var(--green-bg)':'var(--bg3)'};transition:all 0.15s">
+                  <span style="font-size:14px">${done?'✅':icon}</span>
+                  <span style="font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${active?'var(--blue)':'var(--text2)'};font-weight:${active?600:400}">${q.question.substring(0,60)}...</span>
+                  ${active?'<span class="badge badge-blue" style="font-size:10px">LIVE</span>':''}
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active question + live transcript -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title" style="font-size:13px;margin-bottom:10px">📋 Active Question</div>
+          <div id="activeQDisplay" style="font-size:15px;font-weight:600;line-height:1.55;color:var(--text);padding:14px;background:var(--bg3);border-radius:var(--radius);border:1.5px solid var(--border);min-height:80px">
+            ${state.allQuestions?.[state.currentQIndex]?.question || 'Push a question from the panel above'}
+          </div>
+          <div id="activeQIntent" style="font-size:12px;color:var(--blue);margin-top:10px;padding:9px 12px;background:var(--blue-bg);border-radius:8px;border-left:3px solid var(--blue2)">
+            🎯 ${state.allQuestions?.[state.currentQIndex]?.intent || '—'}
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="card-title" style="font-size:13px">🎙 Live Transcript</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--green)">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-ring 1.5s infinite"></div>
+              Recording
+            </div>
+          </div>
+          <div id="liveTranscriptBox" style="min-height:100px;max-height:160px;overflow-y:auto;font-size:13px;line-height:1.7;color:var(--text2);padding:12px;background:var(--bg3);border-radius:var(--radius);border:1.5px solid var(--border)">
+            Candidate's speech will appear here in real time...
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-primary btn-sm" onclick="submitCurrentFromTranscript()">Submit &amp; Get AI Feedback</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearTranscript()">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Feedback area -->
+      <div id="videoFeedbackArea" style="margin-top:20px"></div>
+    </div>
+  `);
+
+  // Start polling transcript from candidate
+  startTranscriptPolling();
+  // Push first question automatically
+  if (state.allQuestions?.length) pushQuestion(state.currentQIndex);
+}
+
+async function pushQuestion(index) {
+  state.currentQIndex = index;
+  const q = state.allQuestions[index];
+  if (!q) return;
+
+  // Save to session so candidate page can poll it
+  try {
+    await fetch(`${API}/api/session/${state.sessionId}/push-question`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: q, question_index: index, total_questions: state.allQuestions.length })
+    });
+  } catch(e) {}
+
+  // Update interviewer UI
+  const activeQDisplay = document.getElementById('activeQDisplay');
+  const activeQIntent = document.getElementById('activeQIntent');
+  if (activeQDisplay) activeQDisplay.textContent = q.question;
+  if (activeQIntent) activeQIntent.innerHTML = `🎯 ${q.intent}`;
+
+  // Refresh push list highlight
+  const qPushList = document.getElementById('qPushList');
+  if (qPushList) {
+    qPushList.querySelectorAll('[onclick]').forEach((el, i) => {
+      const done = state.answers[state.allQuestions[i]?.id];
+      const active = i === index;
+      el.style.borderColor = active ? 'var(--blue2)' : done ? 'rgba(5,150,105,0.2)' : 'var(--border)';
+      el.style.background = active ? 'var(--blue-bg)' : done ? 'var(--green-bg)' : 'var(--bg3)';
+    });
+  }
+
+  // Reset transcript for new question
+  liveTranscript[q.id] = '';
+  const box = document.getElementById('liveTranscriptBox');
+  if (box) box.textContent = 'Candidate is being asked this question...';
+}
+
+let transcriptPollInterval = null;
+function startTranscriptPolling() {
+  if (transcriptPollInterval) clearInterval(transcriptPollInterval);
+  transcriptPollInterval = setInterval(async () => {
+    try {
+      const res = await fetch(`${API}/api/session/${state.sessionId}`);
+      const data = await res.json();
+      if (!data.success) return;
+      const q = state.allQuestions?.[state.currentQIndex];
+      if (!q) return;
+      const transcript = data.session.transcripts?.[q.id] || '';
+      if (transcript) {
+        const box = document.getElementById('liveTranscriptBox');
+        if (box && box.textContent !== transcript) {
+          box.textContent = transcript;
+          box.scrollTop = box.scrollHeight;
+          state.transcript = state.transcript || {};
+          state.transcript[q.id] = transcript;
+        }
+      }
+    } catch(e) {}
+  }, 2000);
+}
+
+async function submitCurrentFromTranscript() {
+  const q = state.allQuestions?.[state.currentQIndex];
+  if (!q) return;
+  const box = document.getElementById('liveTranscriptBox');
+  const transcript = box?.textContent || state.transcript?.[q.id] || '';
+  if (!transcript || transcript.includes('Candidate is being asked')) {
+    showStatus('error', 'No transcript yet — wait for the candidate to speak.'); return;
+  }
+  showStatus('loading', 'Claude is analyzing the answer...');
+  try {
+    const res = await fetch(`${API}/api/evaluate-answer`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: state.sessionId, questionId: q.id, question: q.question, intent: q.intent, expected: q.expected_answer_depth, transcript, score: state.scores[q.id] || 0 })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    state.feedback = state.feedback || {};
+    state.feedback[q.id] = data.feedback;
+    state.answers[q.id] = { submitted: true, transcript };
+    hideStatus();
+    const feedbackArea = document.getElementById('videoFeedbackArea');
+    if (feedbackArea) feedbackArea.innerHTML = renderFeedback(data.feedback, false);
+    // Auto advance to next question
+    if (state.currentQIndex < state.allQuestions.length - 1) {
+      setTimeout(() => pushQuestion(state.currentQIndex + 1), 500);
+    }
+  } catch(e) { showStatus('error', 'Feedback error: ' + e.message); }
+}
+
+function clearTranscript() {
+  const box = document.getElementById('liveTranscriptBox');
+  if (box) box.textContent = 'Transcript cleared. Ready for next answer.';
+}
+
+// ─── Video room helpers ───────────────────────────────────────────────────────
+function copyAndAlert(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showStatus('success', '✓ Candidate link copied to clipboard!');
+    setTimeout(hideStatus, 3000);
+  });
+}
+
+function shareViaEmail(link) {
+  const subject = encodeURIComponent(`HireIQ Interview Link — ${state.candidateName || 'Candidate'}`);
+  const body = encodeURIComponent(
+    `Hi ${state.candidateName || 'there'},\n\nPlease join your interview using the link below:\n\n${link}\n\nMake sure your camera and microphone are working before joining.\n\nBest regards`
+  );
+  window.open(`mailto:?subject=${subject}&body=${body}`);
+}
+
+// ─── Cloudflare tunnel status in topbar ───────────────────────────────────────
+async function checkTunnelStatus() {
+  try {
+    const res = await fetch(`${API}/api/public-url`);
+    const data = await res.json();
+    const badge = document.getElementById('tunnelBadge');
+    if (badge) {
+      if (data.isPublic) {
+        badge.innerHTML = `<span style="color:var(--green);font-size:11px;font-weight:600">🌐 ${data.url.replace('https://','')}</span>`;
+        badge.title = 'Cloudflare tunnel active — candidates can join from any device';
+      } else {
+        badge.innerHTML = `<span style="color:var(--amber);font-size:11px;font-weight:600">⚠ localhost only</span>`;
+        badge.title = 'Run: cloudflared tunnel --url http://localhost:3001';
+      }
+    }
+  } catch(e) {}
+}
+
+// Load AI provider status on boot
+(async () => {
+  try {
+    const res = await fetch(`${API}/api/provider-status`);
+    const data = await res.json();
+    const badge = document.getElementById('providerBadge');
+    const label = document.getElementById('providerLabel');
+    if (data.active) {
+      label.textContent = data.label;
+      badge.style.background = 'rgba(16,185,129,0.2)';
+      badge.style.borderColor = 'rgba(16,185,129,0.4)';
+      badge.querySelector('div').style.background = '#10B981';
+    } else {
+      label.textContent = 'No AI provider set';
+      badge.style.background = 'rgba(239,68,68,0.2)';
+      badge.style.borderColor = 'rgba(239,68,68,0.4)';
+      badge.querySelector('div').style.background = '#EF4444';
+    }
+  } catch(e) { document.getElementById('providerLabel').textContent = 'AI offline'; }
+})();
+
+checkTunnelStatus();
+setInterval(checkTunnelStatus, 10000);
+
+// ─── In-Person Speech Recognition Engine ─────────────────────────────────────
+let recognitionInstance = null;
+let listeningQId = null;
+
+function startListening(qId) {
+  // Stop any existing recognition
+  if (recognitionInstance) {
+    recognitionInstance.stop();
+    recognitionInstance = null;
+  }
+
+  // Check browser support
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showStatus('error', 'Speech recognition not supported. Use Chrome or Edge browser.');
+    return;
+  }
+
+  listeningQId = qId;
+  const recognition = new SpeechRecognition();
+  recognitionInstance = recognition;
+
+  recognition.continuous     = true;  // keep listening
+  recognition.interimResults = true;  // show words as they're spoken
+  recognition.lang           = 'en-US';
+  recognition.maxAlternatives = 1;
+
+  let finalText = state.transcript?.[qId] || '';
+  let interimText = '';
+
+  // Update UI to listening state
+  const btn = document.getElementById(`listenBtn_${qId}`);
+  const dot = document.getElementById(`listenDot_${qId}`);
+  const status = document.getElementById(`listenStatus_${qId}`);
+  const box = document.getElementById(`transcriptBox_${qId}`);
+
+  if (btn) { btn.textContent = '🔴 Listening...'; btn.className = 'btn btn-red'; btn.onclick = () => stopListening(qId); }
+  if (dot) { dot.style.background = '#EF4444'; dot.style.animation = 'pulse-ring 1s infinite'; }
+  if (status) status.innerHTML = '<div id="listenDot_' + qId + '" style="width:8px;height:8px;border-radius:50%;background:#EF4444;animation:pulse-ring 1s infinite"></div> <span style="color:var(--red)">Listening — speak clearly</span>';
+  if (box) { box.style.borderColor = 'var(--red)'; box.style.background = 'rgba(220,38,38,0.03)'; }
+
+  recognition.onresult = (event) => {
+    interimText = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalText += (finalText ? ' ' : '') + transcript;
+        interimText = '';
+        // Save to state
+        state.transcript = state.transcript || {};
+        state.transcript[qId] = finalText;
+        const hidden = document.getElementById(`transcriptInput_${qId}`);
+        if (hidden) hidden.value = finalText;
+      } else {
+        interimText = transcript;
+      }
+    }
+    // Update display
+    if (box) {
+      box.innerHTML = (finalText ? `<span style="color:var(--text)">${finalText}</span>` : '') +
+        (interimText ? `<span style="color:var(--text3);font-style:italic"> ${interimText}</span>` : '');
+      box.scrollTop = box.scrollHeight;
+    }
+  };
+
+  recognition.onerror = (event) => {
+    if (event.error === 'no-speech') return; // ignore silence
+    if (event.error === 'not-allowed') {
+      showStatus('error', 'Microphone access denied. Please allow mic permission in browser settings.');
+    } else {
+      showStatus('error', `Speech recognition error: ${event.error}`);
+    }
+    stopListening(qId);
+  };
+
+  recognition.onend = () => {
+    // Auto-restart if still supposed to be listening
+    if (listeningQId === qId && recognitionInstance === recognition) {
+      try { recognition.start(); } catch(e) {}
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch(e) {
+    showStatus('error', 'Could not start microphone: ' + e.message);
+  }
+}
+
+function stopListening(qId) {
+  listeningQId = null;
+  if (recognitionInstance) {
+    recognitionInstance.stop();
+    recognitionInstance = null;
+  }
+  // Reset UI
+  const btn = document.getElementById(`listenBtn_${qId}`);
+  const status = document.getElementById(`listenStatus_${qId}`);
+  const box = document.getElementById(`transcriptBox_${qId}`);
+
+  if (btn) { btn.textContent = '🎙 Start Listening'; btn.className = 'btn btn-green'; btn.onclick = () => startListening(qId); }
+  if (status) status.innerHTML = '<div style="width:8px;height:8px;border-radius:50%;background:var(--green)"></div> <span style="color:var(--green)">Done — transcript captured</span>';
+  if (box) { box.style.borderColor = 'var(--green)'; box.style.background = 'var(--green-bg)';
+    setTimeout(() => { if(box){ box.style.borderColor=''; box.style.background=''; } }, 2000);
+  }
+}
+
+function clearTranscriptBox(qId) {
+  state.transcript = state.transcript || {};
+  state.transcript[qId] = '';
+  const box = document.getElementById(`transcriptBox_${qId}`);
+  const hidden = document.getElementById(`transcriptInput_${qId}`);
+  if (box) box.innerHTML = '<span style="color:var(--text3);font-style:italic">Click Start Listening then let the candidate speak...</span>';
+  if (hidden) hidden.value = '';
+}
+
+// Stop any active listening when navigating away
+const _origNavigate = navigate;
+window.navigate = function(step) {
+  if (listeningQId) stopListening(listeningQId);
+  _origNavigate(step);
+};
+
+navigate('intake');
+
+</script>
+</body>
+</html>
