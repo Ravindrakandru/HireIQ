@@ -1,6 +1,11 @@
 const path = require('path');
 const fs = require('fs');
-
+// Load local-config.js if exists (gitignored — never pushed to GitHub)
+const localConfig = path.join(__dirname, 'local-config.js');
+if (fs.existsSync(localConfig)) {
+  require(localConfig);
+  console.log('[local-config.js] Loaded');
+}
 // ─── Keys ────────────────────────────────────────────────────────────────────
 // Local dev: hardcoded below
 // Production (Render/Railway): set in dashboard — these if(!x) lines won't override them
@@ -669,7 +674,7 @@ Return ONLY a single valid JSON object (not an array):
 
 // ─── Route: Public URL (for candidate link generation) ───────────────────────
 app.get('/api/public-url', (req, res) => {
-  res.json({ url: publicUrl, isPublic: publicUrl.includes('trycloudflare.com') || publicUrl.includes('ngrok') });
+  res.json({ url: publicUrl, isPublic: publicUrl.includes('localhost') || publicUrl.includes('127.0.0.1') });
 });
 
 // ─── Route: Provider status ───────────────────────────────────────────────────
