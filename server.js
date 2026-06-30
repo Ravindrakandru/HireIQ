@@ -293,6 +293,35 @@ app.post('/api/intake', upload.fields([
   }
 });
 
+// ─── Helper: Extract earliest date from resume text via regex ─────────────────
+// This acts as a deterministic backup/cross-check to the AI's date extraction
+function extractEarliestDate(text) {
+  const monthMap = {
+    jan:0, feb:1, mar:2, apr:3, may:4, jun:5,
+    jul:6, aug:7, sep:8, oct:9, nov:10, dec:11
+  };
+  // Matches: "Jan 2021", "January 2021", "Jan-2021", "Jan.2021" etc.
+  const regex = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s\-\.]*(\d{4})\b/gi;
+  let match;
+  let earliest = null;
+  while ((match = regex.exec(text)) !== null) {
+    const month = monthMap[match[1].toLowerCase()];
+    const year = parseInt(match[2]);
+    if (year < 1990 || year > new Date().getFullYear() + 1) continue; // sanity check
+    const date = new Date(year, month, 1);
+    if (!earliest || date < earliest) earliest = date;
+  }
+  if (!earliest) return null;
+  const now = new Date();
+  const months = (now.getFullYear() - earliest.getFullYear()) * 12 + (now.getMonth() - earliest.getMonth());
+  const years = Math.round((months / 12) * 10) / 10;
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return {
+    earliestDateStr: `${monthNames[earliest.getMonth()]} ${earliest.getFullYear()}`,
+    calculatedYears: years
+  };
+}
+
 // ─── Route: Analyze red flags ─────────────────────────────────────────────────
 app.post('/api/analyze', async (req, res) => {
   const session = sessions.get(req.body.sessionId);
@@ -304,17 +333,35 @@ app.post('/api/analyze', async (req, res) => {
     const currentMonth = now.toLocaleString('en-US', { month: 'long' });
     const currentYear = now.getFullYear();
 
-    const prompt = `Analyze this Job Description and Candidate Resume. Identify red flags.
+    // Deterministic backup calculation — extracted via regex, not AI guesswork
+    const dateExtraction = extractEarliestDate(session.resume);
+    const precomputedNote = dateExtraction
+      ? `\n\nPRE-COMPUTED REFERENCE (verify against this, do not just copy blindly — but it should match your own Step 1-3 analysis):\nThe earliest date pattern detected by automated scanning is "${dateExtraction.earliestDateStr}", giving approximately ${dateExtraction.calculatedYears} years of experience as of ${currentMonth} ${currentYear}. Use this as a cross-check — if your own date extraction differs significantly, double check the resume text again before finalizing.`
+      : '';
 
-IMPORTANT — EXPERIENCE CALCULATION RULES:
-1. NEVER trust self-reported experience claims like "6+ years" or "X years of experience"
-2. Instead, CALCULATE actual experience by:
-   - Finding the EARLIEST employment/project start date in the resume
-   - Calculating months from that date to today (${currentMonth} ${currentYear})
-   - Converting to years (round to 1 decimal place)
-3. If the earliest date is Jan 2021, actual experience = ~${Math.round((now - new Date('2021-01-01')) / (1000 * 60 * 60 * 24 * 30.44))} months = ~${((now - new Date('2021-01-01')) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(1)} years as of today
-4. Flag it as a RED FLAG (title_inflation, severity=high) if claimed experience exceeds calculated experience by more than 6 months (0.5 years)
-5. Use the CALCULATED experience in candidate_summary, not the claimed figure
+    const prompt = `You are analyzing a resume. Follow these steps IN ORDER before writing any output.
+
+STEP 1 — EXTRACT ALL DATES:
+Scan the entire resume text below and list EVERY date range you find in formats like "Jan 2021 - Jan 2023", "Dec 2019 - July 2020", "Jan 2025 - Present", etc. Include ALL employment history AND ALL project entries — resumes often list multiple consecutive projects/roles instead of one continuous job.
+
+STEP 2 — FIND THE EARLIEST START DATE:
+Among ALL the date ranges extracted in Step 1, identify the single EARLIEST start date (the oldest one chronologically). This is the candidate's actual career start date, regardless of which project/role it belongs to or where it appears in the resume (could be the last item listed, not the first).
+
+STEP 3 — CALCULATE ACTUAL EXPERIENCE:
+Calculate the number of months and years from that earliest start date to today (${currentMonth} ${currentYear}). This is the candidate's ACTUAL total experience. Show your work mentally but only output the final number.
+
+STEP 4 — COMPARE TO CLAIMED EXPERIENCE:
+Find what the resume CLAIMS (e.g. "6+ years", "extensive experience 6+"). Compare claimed vs your Step 3 calculation.
+- If claimed minus calculated > 0.5 years → add a HIGH severity red_flag with type "title_inflation"
+- If claimed minus calculated <= 0.5 years → experience claim is accurate, do NOT add this red flag
+- If calculated >= claimed → experience claim is accurate or conservative, do NOT add this red flag
+
+STEP 5 — WRITE THE SUMMARY:
+In candidate_summary, state the CALCULATED years (from Step 3), not the claimed figure. Be specific, e.g. "approximately 6.5 years" not a generic restatement of the resume's own summary line.
+
+CRITICAL: Do not just paraphrase the resume's "Professional Summary" section. You must independently verify the experience claim against the actual project/employment dates listed later in the resume.
+
+${precomputedNote}
 
 JOB DESCRIPTION:
 ${session.jd}
@@ -324,10 +371,11 @@ ${session.resume}
 
 Return ONLY valid JSON with this structure:
 {
-  "candidate_summary": "2-3 sentence summary — use CALCULATED experience years, not claimed",
+  "candidate_summary": "2-3 sentences using the CALCULATED experience figure from Step 3",
   "role_summary": "1-2 sentence summary of what the role needs",
-  "actual_experience_years": 4.5,
+  "actual_experience_years": 6.5,
   "claimed_experience_years": 6,
+  "earliest_date_found": "Dec 2019",
   "match_score": 72,
   "red_flags": [
     {
