@@ -494,6 +494,11 @@ STRICT ROLE RULES — follow these absolutely:
 - QA Engineer: Coding = test automation (Selenium, Postman, Cypress, pytest) NOT algorithms.
 - Developer / Engineer / Architect: Coding is mandatory. Architecture scales with experience level.
 
+IMPORTANT — for EVERY question, "intent" and "expected_answer_depth" MUST be specific and substantive, never generic placeholders:
+- "intent" should name the SPECIFIC concept/skill being tested (e.g. "Understanding of Sales Cloud vs Service Cloud use cases and decision criteria" — not just "technical knowledge")
+- "expected_answer_depth" should list the SPECIFIC points a strong answer would cover (e.g. "Should mention: Sales Cloud = lead/opportunity/pipeline management; Service Cloud = case management/support; decision based on business need (sales vs support)")
+These fields are used later to grade the candidate's actual answer, so vague fields lead to unreliable grading.
+
 Return ONLY valid JSON, no markdown:
 {
   "experience_label": "${config.label}",
@@ -545,27 +550,39 @@ Skip sections with count 0 entirely.`;
 app.post('/api/evaluate-answer', async (req, res) => {
   const { sessionId, questionId, question, intent, expected, transcript, score } = req.body;
   try {
-    const prompt = `Evaluate this candidate answer.
+    const prompt = `Evaluate this candidate's interview answer using the strict rubric below. Be fair and accurate — do not penalize answers that are correct and complete just because they are concise.
 
-QUESTION: ${question}
-TESTS: ${intent}
-EXPECTED: ${expected}
-INTERVIEWER SCORE: ${score}/5
-ANSWER: "${transcript}"
+QUESTION ASKED: ${question}
+WHAT THIS QUESTION TESTS: ${intent || 'General technical/conceptual understanding of the topic in the question'}
+WHAT A GOOD ANSWER COVERS: ${expected || 'Accurate, relevant technical content that directly answers the question with correct facts and sound reasoning'}
+INTERVIEWER'S MANUAL SCORE: ${score}/5 (for reference only — your AI evaluation should be independent, but if your verdict differs significantly from the interviewer's score, explain why in gaps/positives)
+CANDIDATE'S ANSWER: "${transcript}"
+
+SCORING RUBRIC — apply this consistently:
+- "strong" (score_ai 4-5): Answer is technically accurate, directly addresses the question, AND provides clear reasoning or decision criteria. Does not need to be long — a concise but complete and correct answer is STRONG, not weak.
+- "adequate" (score_ai 3): Answer is mostly correct and relevant but missing some depth, examples, or misses a minor nuance.
+- "weak" (score_ai 1-2): Answer has factual errors, is vague/generic, avoids the actual question, or shows fundamental misunderstanding of the topic.
+- "off_topic": Answer does not address the question asked at all.
+
+CRITICAL EVALUATION RULES:
+1. If the candidate correctly explains the core technical differences AND provides valid decision criteria for when to use each option, this is a STRONG answer — even if brief. Conciseness is not a weakness.
+2. Do NOT mark an answer as "weak" just because it lacks exhaustive detail. Judge based on technical CORRECTNESS and RELEVANCE, not length.
+3. Verify factual accuracy yourself — if the candidate's claims about the technology/concept are correct, this counts heavily in their favor regardless of how the question's "intent" field was phrased.
+4. If WHAT THIS QUESTION TESTS or WHAT A GOOD ANSWER COVERS fields above are generic/missing, evaluate based on objective technical accuracy of the answer to the literal question asked.
 
 Return ONLY valid JSON:
 {
   "verdict": "strong|adequate|weak|off_topic",
   "score_ai": 4,
-  "summary": "2-3 sentence assessment",
-  "positives": ["what they got right"],
-  "gaps": ["what was missing"],
-  "red_flags_surfaced": ["concerns raised"],
+  "summary": "2-3 sentence assessment explaining the verdict, citing specific accurate/inaccurate points from the answer",
+  "positives": ["specific correct points from their actual answer"],
+  "gaps": ["specific missing or incorrect points, if any — leave empty array if answer is complete"],
+  "red_flags_surfaced": ["concerns raised, if any"],
   "follow_up_needed": true,
   "suggested_follow_up": "follow-up question if needed"
 }`;
 
-    const sys = 'You are an expert technical interviewer. Return ONLY valid JSON, no markdown.';
+    const sys = 'You are an expert technical interviewer with deep Salesforce/software engineering knowledge. You evaluate answers fairly based on technical accuracy and relevance, not length or verbosity. Return ONLY valid JSON, no markdown.';
     const raw = await callAI(sys, prompt, 800);
     const feedback = JSON.parse(raw);
 
