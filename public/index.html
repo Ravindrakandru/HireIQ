@@ -1229,7 +1229,32 @@ function shareViaEmail(link) {
       badge.style.borderColor = 'rgba(239,68,68,0.4)';
       badge.querySelector('div').style.background = '#EF4444';
     }
-  } catch(e) { document.getElementById('providerLabel').textContent = 'AI offline'; }
+  } catch(e) {
+    // Server may be sleeping (Render free tier) — retry after 5 seconds
+    document.getElementById('providerLabel').textContent = 'Connecting...';
+    setTimeout(async () => {
+      try {
+        const res2 = await fetch(`${API}/api/provider-status`);
+        const data2 = await res2.json();
+        const badge = document.getElementById('providerBadge');
+        const label = document.getElementById('providerLabel');
+        if (data2.active) {
+          label.textContent = data2.label;
+          badge.style.background = 'rgba(16,185,129,0.2)';
+          badge.style.borderColor = 'rgba(16,185,129,0.4)';
+          badge.querySelector('div').style.background = '#10B981';
+        } else {
+          label.textContent = 'No AI key set';
+          badge.style.background = 'rgba(239,68,68,0.2)';
+          badge.style.borderColor = 'rgba(239,68,68,0.4)';
+          badge.querySelector('div').style.background = '#EF4444';
+        }
+      } catch(e2) {
+        document.getElementById('providerLabel').textContent = 'AI offline — check Render env vars';
+        document.getElementById('providerBadge').style.background = 'rgba(239,68,68,0.2)';
+      }
+    }, 5000);
+  }
 })();
 
 
