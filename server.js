@@ -299,7 +299,22 @@ app.post('/api/analyze', async (req, res) => {
   if (!session) return res.status(404).json({ error: 'Session not found.' });
 
   try {
+    // Calculate current date for experience computation
+    const now = new Date();
+    const currentMonth = now.toLocaleString('en-US', { month: 'long' });
+    const currentYear = now.getFullYear();
+
     const prompt = `Analyze this Job Description and Candidate Resume. Identify red flags.
+
+IMPORTANT — EXPERIENCE CALCULATION RULES:
+1. NEVER trust self-reported experience claims like "6+ years" or "X years of experience"
+2. Instead, CALCULATE actual experience by:
+   - Finding the EARLIEST employment/project start date in the resume
+   - Calculating months from that date to today (${currentMonth} ${currentYear})
+   - Converting to years (round to 1 decimal place)
+3. If the earliest date is Jan 2021, actual experience = ~${Math.round((now - new Date('2021-01-01')) / (1000 * 60 * 60 * 24 * 30.44))} months = ~${((now - new Date('2021-01-01')) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(1)} years as of today
+4. Flag it as a RED FLAG (title_inflation, severity=high) if claimed experience exceeds calculated experience by more than 6 months (0.5 years)
+5. Use the CALCULATED experience in candidate_summary, not the claimed figure
 
 JOB DESCRIPTION:
 ${session.jd}
@@ -309,8 +324,10 @@ ${session.resume}
 
 Return ONLY valid JSON with this structure:
 {
-  "candidate_summary": "2-3 sentence summary",
+  "candidate_summary": "2-3 sentence summary — use CALCULATED experience years, not claimed",
   "role_summary": "1-2 sentence summary of what the role needs",
+  "actual_experience_years": 4.5,
+  "claimed_experience_years": 6,
   "match_score": 72,
   "red_flags": [
     {
