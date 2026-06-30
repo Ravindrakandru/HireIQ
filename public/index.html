@@ -864,9 +864,12 @@ function renderTranscriptInput(q) {
     return `<div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div class="section-label" style="margin-bottom:0">🎙 Live Transcript — Candidate Speech</div>
-        <div id="listenStatus_${q.id}" style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text3)">
-          <div id="listenDot_${q.id}" style="width:8px;height:8px;border-radius:50%;background:var(--text3)"></div>
-          Not listening
+        <div style="display:flex;align-items:center;gap:12px">
+          <span id="wordCount_${q.id}" style="font-size:11px;color:var(--text3);font-weight:600">${(saved||'').trim().split(/\s+/).filter(Boolean).length} words</span>
+          <div id="listenStatus_${q.id}" style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text3)">
+            <div id="listenDot_${q.id}" style="width:8px;height:8px;border-radius:50%;background:var(--text3)"></div>
+            Not listening
+          </div>
         </div>
       </div>
 
@@ -1334,22 +1337,43 @@ function startListening(qId) {
         (interimText ? `<span style="color:var(--text3);font-style:italic"> ${interimText}</span>` : '');
       box.scrollTop = box.scrollHeight;
     }
+    // Update live word counter
+    const wcEl = document.getElementById(`wordCount_${qId}`);
+    if (wcEl) {
+      const wordCount = finalText.trim().split(/\s+/).filter(Boolean).length;
+      wcEl.textContent = `${wordCount} words`;
+    }
   };
 
   recognition.onerror = (event) => {
-    if (event.error === 'no-speech') return; // ignore silence
+    // Only fully stop on permission denial — everything else should auto-recover via onend
     if (event.error === 'not-allowed') {
       showStatus('error', 'Microphone access denied. Please allow mic permission in browser settings.');
-    } else {
-      showStatus('error', `Speech recognition error: ${event.error}`);
+      stopListening(qId);
+      return;
     }
-    stopListening(qId);
+    // For 'no-speech', 'network', 'aborted', etc — let onend handle the restart.
+    // Do NOT call stopListening here, as that would end the session on a transient error.
+    console.warn('[Speech] Transient error (will auto-restart):', event.error);
   };
 
   recognition.onend = () => {
-    // Auto-restart if still supposed to be listening
+    // Auto-restart immediately if still supposed to be listening — minimizes gap where words could be missed
     if (listeningQId === qId && recognitionInstance === recognition) {
-      try { recognition.start(); } catch(e) {}
+      try {
+        recognition.start();
+      } catch(e) {
+        // 'already started' errors are harmless — recognition is still running
+        if (e.name !== 'InvalidStateError') {
+          console.error('[Speech] Restart failed:', e);
+          // Retry once more after a short delay as a last resort
+          setTimeout(() => {
+            if (listeningQId === qId && recognitionInstance === recognition) {
+              try { recognition.start(); } catch(e2) {}
+            }
+          }, 250);
+        }
+      }
     }
   };
 
