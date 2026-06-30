@@ -239,11 +239,11 @@ const sessions = new Map();
 const analysisCache  = new Map();
 const questionsCache = new Map();
 
+const crypto = require('crypto');
 function makeCacheKey(jd, resume, extra = '') {
-  // Simple hash based on content length + first/last 100 chars
-  const jdSig     = jd.length + jd.substring(0, 100) + jd.slice(-100);
-  const resumeSig = resume.length + resume.substring(0, 100) + resume.slice(-100);
-  return Buffer.from(jdSig + resumeSig + extra).toString('base64').slice(0, 64);
+  // Use a real hash (SHA-256) of full content — no truncation collisions
+  const combined = jd + '|||' + resume + '|||' + extra;
+  return crypto.createHash('sha256').update(combined).digest('hex');
 }
 
 // ─── File text extractor ─────────────────────────────────────────────────────
