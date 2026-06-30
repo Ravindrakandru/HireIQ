@@ -602,10 +602,16 @@ app.post('/api/evaluate-code', async (req, res) => {
   const { sessionId, questionId, question, code, language } = req.body;
   try {
     const apexNote = language?.toLowerCase().includes('apex') ?
-      'This is Salesforce Apex code. Evaluate it for: proper governor limit awareness, bulkification patterns, SOQL inside loops (antipattern), trigger best practices, null checks, and Salesforce-specific best practices.' :
+      `This is Salesforce Apex code. Apply Salesforce best-practice checks, but ONLY flag issues that are ACTUALLY PRESENT in this specific code — do not report an issue unless you can point to the exact line/pattern where it occurs:
+- Bulkification: Check if SOQL or DML statements are placed INSIDE a loop. If all SOQL/DML calls are OUTSIDE loops (i.e., a single query before the loop and a single DML statement after the loop, operating on a List/collection), the code IS ALREADY BULKIFIED — do not claim it needs bulkification.
+- Governor limits: Only relevant for very large data volumes (50,000+ records) — mention only if the scenario implies this, not as a default checklist item.
+- SOQL/DML in loops: Verify by reading the actual code structure, not just because the code touches Salesforce objects.
+- Error handling: Check if try-catch exists. If absent, this IS a valid improvement to suggest.
+- Null checks: Check if null checks exist for relevant fields before they're used.
+Be precise — if a pattern (like bulkification) is already correctly implemented, say so explicitly in "what_was_good", do not list it under "improvements".` :
       '';
 
-    const prompt = `Evaluate this coding submission.
+    const prompt = `Evaluate this coding submission by carefully reading the ACTUAL code below line by line. Do not assume common mistakes are present — verify each claim against the real code.
 
 PROBLEM: ${question}
 
@@ -614,21 +620,28 @@ ${code}
 
 ${apexNote}
 
+EVALUATION RULES:
+1. Read the code structure first: identify where SOQL queries are, where DML statements are, whether they are inside or outside loops.
+2. Only report an issue in "improvements" if you can verify it is actually present in the code shown above. Do not report theoretical/generic concerns as if they are confirmed problems.
+3. If the code already correctly implements a best practice (e.g., bulkification, single DML), explicitly credit it in "what_was_good" — do not also list the opposite as a missing improvement.
+4. "efficiency" score should reflect actual Big-O / governor-limit behavior of THIS code, not generic Salesforce concerns unrelated to what's written.
+5. Valid improvements to suggest only if genuinely missing: error handling (try-catch), null/empty checks, avoiding unnecessary updates (e.g. update records even when no field actually changed), test coverage.
+
 Return ONLY valid JSON:
 {
   "verdict": "excellent|good|average|poor",
   "overall_score": 4,
-  "correctness":  { "score": 4, "comment": "correctness analysis" },
-  "efficiency":   { "score": 3, "comment": "time/space complexity" },
+  "correctness":  { "score": 4, "comment": "correctness analysis — does it solve the stated problem" },
+  "efficiency":   { "score": 3, "comment": "time/space complexity AND whether SOQL/DML are properly outside loops" },
   "code_quality": { "score": 4, "comment": "readability and structure" },
-  "edge_cases":   { "score": 2, "comment": "edge cases handled/missed" },
-  "summary": "2-3 sentence overall assessment",
-  "what_was_good": ["positives"],
-  "improvements": ["improvements needed"],
+  "edge_cases":   { "score": 2, "comment": "edge cases handled/missed — be specific about which ones" },
+  "summary": "2-3 sentence overall assessment based on what is ACTUALLY in the code",
+  "what_was_good": ["specific things this code does correctly, citing the pattern e.g. 'Properly bulkified — single SOQL query and single DML statement outside loops'"],
+  "improvements": ["only genuinely missing items, e.g. 'No try-catch around the DML statement'"],
   "sample_better_approach": "describe optimal approach without writing full code"
 }`;
 
-    const sys = 'You are a senior software engineer. Return ONLY valid JSON, no markdown.';
+    const sys = 'You are a senior software engineer who evaluates code by carefully reading it, not by pattern-matching against a generic checklist. You never claim a best practice is missing unless you have verified it is actually absent from the code. Return ONLY valid JSON, no markdown.';
     const raw = await callAI(sys, prompt, 1200);
     const feedback = JSON.parse(raw);
 
