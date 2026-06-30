@@ -1,21 +1,16 @@
 const path = require('path');
 const fs = require('fs');
-// Load local-config.js if exists (gitignored — never pushed to GitHub)
-const localConfig = path.join(__dirname, 'local-config.js');
-if (fs.existsSync(localConfig)) {
-  require(localConfig);
-  console.log('[local-config.js] Loaded');
-}
+
 // ─── Keys ────────────────────────────────────────────────────────────────────
 // Local dev: hardcoded below
 // Production (Render/Railway): set in dashboard — these if(!x) lines won't override them
-// GROQ_API_KEY — set in Render dashboard or local-config.js (gitignored)
-if (!process.env.GROQ_MODEL) process.env.GROQ_MODEL = 'llama-3.3-70b-versatile';
-if (!process.env.PORT) process.env.PORT = '3001';
-// ASSEMBLYAI_API_KEY — set in Render dashboard or local-config.js (gitignored)
+// GROQ_API_KEY — set in Render dashboard environment variables
+if (!process.env.GROQ_MODEL)         process.env.GROQ_MODEL         = 'llama-3.3-70b-versatile';
+if (!process.env.PORT)               process.env.PORT               = '3001';
+// ASSEMBLYAI_API_KEY — set in Render dashboard environment variables
 // FRONTEND_URL: set this to your Render/Railway URL in the dashboard
 // Locally it defaults to localhost
-if (!process.env.FRONTEND_URL) process.env.FRONTEND_URL = 'http://localhost:3001';
+if (!process.env.FRONTEND_URL)       process.env.FRONTEND_URL       = 'http://localhost:3001';
 
 const express  = require('express');
 const cors     = require('cors');
@@ -674,7 +669,9 @@ Return ONLY a single valid JSON object (not an array):
 
 // ─── Route: Public URL (for candidate link generation) ───────────────────────
 app.get('/api/public-url', (req, res) => {
-  res.json({ url: publicUrl, isPublic: publicUrl.includes('localhost') || publicUrl.includes('127.0.0.1') });
+  const url = process.env.FRONTEND_URL || publicUrl;
+  const isPublic = !url.includes('localhost') && !url.includes('127.0.0.1');
+  res.json({ url, isPublic });
 });
 
 // ─── Route: Provider status ───────────────────────────────────────────────────
@@ -770,9 +767,6 @@ function findQuestion(questionsData, qId) {
   }
   return null;
 }
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 // ─── Start server + Cloudflare tunnel ────────────────────────────────────────
 app.listen(PORT, async () => {

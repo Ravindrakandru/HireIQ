@@ -155,7 +155,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div>
 </div>
 <script>
-const API='http://localhost:3001';
+const API='https://hireiq-hupy.onrender.com';
 let state={step:'intake',sessionId:null,analysis:null,questions:null,answers:{},scores:{},currentQ:null,transcript:{},interviewStarted:false};
 const STEPS=[{id:'intake',label:'Setup'},{id:'analyze',label:'Analysis'},{id:'questions',label:'Questions'},{id:'interview',label:'Interview'},{id:'report',label:'Report'}];
 const SECTION_META={technical:{icon:'⚙️',label:'Technical',color:'var(--blue)'},scenario:{icon:'🎯',label:'Scenario Based',color:'var(--purple)'},architecture:{icon:'🏗️',label:'Architecture & Thought',color:'var(--teal)'},behavioural:{icon:'🧠',label:'Behavioural',color:'var(--amber)'},coding:{icon:'💻',label:'Coding Exercise',color:'var(--green)'}};
