@@ -215,8 +215,9 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Use memory storage — avoids filesystem issues on Render/cloud deployments
 const upload = multer({
-  dest: 'uploads/',
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const ok = ['.pdf', '.docx', '.doc', '.txt'];
@@ -238,15 +239,14 @@ function makeCacheKey(jd, resume, extra = '') {
 }
 
 // ─── File text extractor ─────────────────────────────────────────────────────
-async function extractText(filePath, originalName) {
+async function extractText(buffer, originalName) {
   const ext = path.extname(originalName).toLowerCase();
-  const buf = fs.readFileSync(filePath);
   if (ext === '.pdf') {
-    const d = await pdfParse(buf); return d.text;
+    const d = await pdfParse(buffer); return d.text;
   } else if (ext === '.docx' || ext === '.doc') {
-    const r = await mammoth.extractRawText({ buffer: buf }); return r.value;
+    const r = await mammoth.extractRawText({ buffer }); return r.value;
   }
-  return buf.toString('utf-8');
+  return buffer.toString('utf-8');
 }
 
 // ─── Route: Intake ────────────────────────────────────────────────────────────
@@ -261,13 +261,11 @@ app.post('/api/intake', upload.fields([
 
     if (req.files?.jd_file?.[0]) {
       const f = req.files.jd_file[0];
-      jdContent = await extractText(f.path, f.originalname);
-      fs.unlinkSync(f.path);
+      jdContent = await extractText(f.buffer, f.originalname);
     }
     if (req.files?.resume?.[0]) {
       const f = req.files.resume[0];
-      resumeContent = await extractText(f.path, f.originalname);
-      fs.unlinkSync(f.path);
+      resumeContent = await extractText(f.buffer, f.originalname);
     }
 
     if (!jdContent || !resumeContent)
